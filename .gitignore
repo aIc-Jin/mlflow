@@ -115,3 +115,4 @@ a.md
 
 # Ignore a gunicorn config file
 gunicorn.conf.py
+.history/

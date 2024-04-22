@@ -1383,6 +1383,63 @@ def create_promptlab_run_handler():
 
 
 @catch_mlflow_exception
+@_disable_if_artifacts_only
+def create_raglab_run_handler():
+    def assert_arg_exists(arg_name, arg):
+        if not arg:
+            raise MlflowException(
+                message=f"CreatePromptlabRun request must specify {arg_name}.",
+                error_code=INVALID_PARAMETER_VALUE,
+            )
+
+    _validate_content_type(request, ["application/json"])
+
+    args = request.json
+    experiment_id = args.get("experiment_id")
+    assert_arg_exists("experiment_id", experiment_id)
+    # run_name = args.get("run_name", None)
+    # tags = args.get("tags", [])
+    prompt_template = args.get("prompt_template")
+    assert_arg_exists("prompt_template", prompt_template)
+    raw_prompt_parameters = args.get("prompt_parameters")
+    assert_arg_exists("prompt_parameters", raw_prompt_parameters)
+    # prompt_parameters = [
+    #     Param(param.get("key"), param.get("value")) for param in args.get("prompt_parameters")
+    # ]
+    model_route = args.get("model_route")
+    assert_arg_exists("model_route", model_route)
+    # raw_model_parameters = args.get("model_parameters", [])
+    # model_parameters = [
+    #     Param(param.get("key"), param.get("value")) for param in raw_model_parameters
+    # ]
+
+    model_input = args.get("model_input")
+    assert_arg_exists("model_input", model_input)
+
+    mlflow_version = args.get("mlflow_version")
+    assert_arg_exists("mlflow_version", mlflow_version)
+
+    user_id = args.get("user_id", "unknown")
+    assert_arg_exists("user_id", user_id)
+
+    # use current time if not provided
+    # start_time = args.get("start_time", int(time.time() * 1000))
+
+    request_type = request.method
+    json_data = request.json
+
+    response = requests.request(request_type, "http://0.0.0.0:8000/", json=json_data)
+
+    if response.status_code == 200:
+        return response.json()
+
+    response_message = CreateRun.Response()
+    response = Response(mimetype="application/json")
+    response.set_data(message_to_json(response_message))
+    return response
+
+
+@catch_mlflow_exception
 def upload_artifact_handler():
     args = request.args
     run_uuid = args.get("run_uuid")
