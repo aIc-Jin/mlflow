@@ -1,6 +1,7 @@
 """
 Runs MLflow server, gateway, and UI in development mode.
 """
+
 import os
 import socket
 import subprocess
@@ -46,7 +47,7 @@ def main():
     ) as server, subprocess.Popen(
         [
             "yarn",
-            "start",
+            "build",
         ],
         cwd="mlflow/server/js",
     ) as ui:
