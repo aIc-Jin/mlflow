@@ -22,6 +22,9 @@ jest.mock('../../utils/experimentPage.row-utils', () => ({
 jest.mock('../../hooks/useCreateNewRun', () => ({
   CreateNewRunContextProvider: ({ children }: any) => <div>{children}</div>,
 }));
+jest.mock('../../hooks/useCreateNewRagRun', () => ({
+  CreateNewRagRunContextProvider: ({ children }: any) => <div>{children}</div>,
+}));
 jest.mock('./ExperimentViewRunsControls', () => ({
   ExperimentViewRunsControls: () => <div />,
 }));

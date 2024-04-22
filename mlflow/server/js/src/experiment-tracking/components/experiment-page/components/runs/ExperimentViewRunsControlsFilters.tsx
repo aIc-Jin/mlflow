@@ -48,6 +48,7 @@ import { datasetSummariesEqual } from '../../../../utils/DatasetUtils';
 import { CreateNotebookRunModal } from 'experiment-tracking/components/evaluation-artifacts-compare/CreateNotebookRunModal';
 import { PreviewBadge } from 'shared/building_blocks/PreviewBadge';
 import { useCreateNewRun } from '../../hooks/useCreateNewRun';
+import { useCreateNewRagRun } from '../../hooks/useCreateNewRagRun';
 import { useExperimentPageViewMode } from '../../hooks/useExperimentPageViewMode';
 import { useUpdateExperimentPageSearchFacets } from '../../hooks/useExperimentPageSearchFacets';
 import { createExperimentPageSearchFacetsStateV2 } from '../../models/ExperimentPageSearchFacetsStateV2';
@@ -95,6 +96,7 @@ export const ExperimentViewRunsControlsFilters = React.memo(
 
     const intl = useIntl();
     const { createNewRun } = useCreateNewRun();
+    const { createNewRagRun } = useCreateNewRagRun();
     const [isCreateRunWithNotebookModalOpen, setCreateRunWithNotebookModalOpenValue] = useState(false);
     const { theme } = useDesignSystemTheme();
 
@@ -414,13 +416,20 @@ export const ExperimentViewRunsControlsFilters = React.memo(
                 </Button>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content>
-                <DropdownMenu.Item onSelect={() => createNewRun()}>
+                {/* <DropdownMenu.Item onSelect={() => createNewRun()}>
                   {' '}
                   <FormattedMessage
                     defaultMessage="using Prompt Engineering"
                     description="String for creating a new run with prompt engineering modal"
                   />
                   <PreviewBadge />
+                </DropdownMenu.Item> */}
+                <DropdownMenu.Item onSelect={() => createNewRagRun()}>
+                  {' '}
+                  <FormattedMessage
+                    defaultMessage="using RAG"
+                    description="String for creating a new run with RAG modal"
+                  />
                 </DropdownMenu.Item>
                 <DropdownMenu.Item onSelect={() => setCreateRunWithNotebookModalOpenValue(true)}>
                   {' '}

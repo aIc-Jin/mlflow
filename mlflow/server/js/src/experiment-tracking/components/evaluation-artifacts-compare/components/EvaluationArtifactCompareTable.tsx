@@ -26,6 +26,7 @@ import { EvaluationTableActionsColumnRenderer } from './EvaluationTableActionsCo
 import { EvaluationTableActionsCellRenderer } from './EvaluationTableActionsCellRenderer';
 import { shouldEnablePromptLab } from '../../../../common/utils/FeatureUtils';
 import { useCreateNewRun } from '../../experiment-page/hooks/useCreateNewRun';
+import { useCreateNewRagRun } from '../../experiment-page/hooks/useCreateNewRagRun';
 
 export interface EvaluationArtifactCompareTableProps {
   resultList: UseEvaluationArtifactTableDataResult;
@@ -58,6 +59,7 @@ export const EvaluationArtifactCompareTable = ({
 
   const { isHeaderExpanded } = usePromptEngineeringContext();
   const { createNewRun } = useCreateNewRun();
+  const { createNewRagRun } = useCreateNewRagRun();
 
   // Before hiding or duplicating the run, let's refresh the header to mitigate ag-grid's
   // bug where it fails to defocus cell after the whole table has been hidden.
@@ -73,8 +75,9 @@ export const EvaluationArtifactCompareTable = ({
     (runToDuplicate?: RunRowType) => {
       gridApi?.refreshHeader();
       createNewRun(runToDuplicate);
+      createNewRagRun(runToDuplicate);
     },
-    [createNewRun, gridApi],
+    [createNewRun, createNewRagRun, gridApi],
   );
 
   useEffect(() => {

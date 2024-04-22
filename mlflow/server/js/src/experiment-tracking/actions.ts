@@ -607,3 +607,55 @@ export const createPromptLabRunApi = ({
   };
 };
 export const CREATE_PROMPT_LAB_RUN = 'CREATE_PROMPT_LAB_RUN';
+
+export const createRagLabRunApi = ({
+  experimentId,
+  modelRouteName,
+  modelParameters,
+  promptTemplate,
+  promptParameters,
+  runName,
+  modelInput,
+  modelOutput,
+  modelOutputParameters,
+  tags = [],
+}: {
+  experimentId: string;
+  runName?: string;
+  promptTemplate: string;
+  promptParameters: Record<string, string>;
+  modelRouteName: string[];
+  modelInput: string;
+  modelOutput: string;
+  modelParameters: Record<string, string | number | string[] | undefined>;
+  modelOutputParameters: Record<string, string | number>;
+  tags?: { key: string; value: string }[];
+}) => {
+  const tupleToKeyValue = <T>(dict: Record<string, T>) => Object.entries(dict).map(([key, value]) => ({ key, value }));
+
+  const tupleToKeyValueFlattenArray = (dict: Record<string, string | number | string[] | undefined>) =>
+    Object.entries(dict).map(([key, value]) => {
+      const scalarValue: string | number | undefined = Array.isArray(value) ? `[${value.join(', ')}]` : value;
+      return { key, value: scalarValue };
+    });
+
+  const payload = {
+    experiment_id: experimentId,
+    run_name: runName || undefined,
+    tags,
+    prompt_template: promptTemplate,
+    prompt_parameters: tupleToKeyValue(promptParameters),
+    model_route: modelRouteName,
+    model_parameters: tupleToKeyValueFlattenArray(modelParameters),
+    model_input: modelInput,
+    model_output: modelOutput,
+    model_output_parameters: tupleToKeyValue(modelOutputParameters),
+    mlflow_version: MLFLOW_PUBLISHED_VERSION,
+  };
+  return {
+    type: CREATE_PROMPT_LAB_RUN,
+    payload: MlflowService.createRagLabRun(payload),
+    meta: { payload },
+  };
+};
+export const CREATE_RAG_LAB_RUN = 'CREATE_RAG_LAB_RUN';

@@ -37,7 +37,8 @@ import {
   shouldEnableMetricChartsGrouping,
   shouldEnableShareExperimentViewByTags,
 } from '../../../../../common/utils/FeatureUtils';
-import { CreateNewRunContextProvider } from '../../hooks/useCreateNewRun';
+// import { CreateNewRunContextProvider } from '../../hooks/useCreateNewRun';
+import { CreateNewRagRunContextProvider } from '../../hooks/useCreateNewRagRun';
 import { useExperimentPageViewMode } from '../../hooks/useExperimentPageViewMode';
 import { SearchExperimentRunsFacetsState } from '../../models/SearchExperimentRunsFacetsState';
 import { ExperimentPageUIStateV2 } from '../../models/ExperimentPageUIStateV2';
@@ -319,7 +320,7 @@ export const ExperimentViewRunsImpl = React.memo((props: ExperimentViewRunsProps
   }, []);
 
   return (
-    <CreateNewRunContextProvider visibleRuns={visibleRuns} refreshRuns={refreshRuns}>
+    <CreateNewRagRunContextProvider visibleRuns={visibleRuns} refreshRuns={refreshRuns}>
       <ExperimentViewRunsControls
         viewState={viewState}
         updateViewState={updateViewState}
@@ -402,7 +403,7 @@ export const ExperimentViewRunsImpl = React.memo((props: ExperimentViewRunsProps
           />
         )}
       </div>
-    </CreateNewRunContextProvider>
+    </CreateNewRagRunContextProvider>
   );
 });
 

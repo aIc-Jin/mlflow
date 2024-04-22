@@ -17,7 +17,15 @@ from flask import Response, current_app, jsonify, request, send_file
 from google.protobuf import descriptor
 from google.protobuf.json_format import ParseError
 
-from mlflow.entities import DatasetInput, ExperimentTag, FileInfo, Metric, Param, RunTag, ViewType
+from mlflow.entities import (
+    DatasetInput,
+    ExperimentTag,
+    FileInfo,
+    Metric,
+    Param,
+    RunTag,
+    ViewType,
+)
 from mlflow.entities.model_registry import ModelVersionTag, RegisteredModelTag
 from mlflow.entities.multipart_upload import MultipartUploadPart
 from mlflow.environment_variables import MLFLOW_DEPLOYMENTS_TARGET
@@ -112,7 +120,7 @@ _logger = logging.getLogger(__name__)
 _tracking_store = None
 _model_registry_store = None
 _artifact_repo = None
-STATIC_PREFIX_ENV_VAR = "_MLFLOW_STATIC_PREFIX"
+STATIC_PREFIX_ENV_VAR = "/static-files/"
 
 
 class TrackingStoreRegistryWrapper(TrackingStoreRegistry):
@@ -641,7 +649,8 @@ def get_experiment_impl(request_message):
 @_disable_if_artifacts_only
 def _get_experiment_by_name():
     request_message = _get_request_message(
-        GetExperimentByName(), schema={"experiment_name": [_assert_required, _assert_string]}
+        GetExperimentByName(),
+        schema={"experiment_name": [_assert_required, _assert_string]},
     )
     response_message = GetExperimentByName.Response()
     store_exp = _get_tracking_store().get_experiment_by_name(request_message.experiment_name)
@@ -674,7 +683,8 @@ def _delete_experiment():
 @_disable_if_artifacts_only
 def _restore_experiment():
     request_message = _get_request_message(
-        RestoreExperiment(), schema={"experiment_id": [_assert_required, _assert_string]}
+        RestoreExperiment(),
+        schema={"experiment_id": [_assert_required, _assert_string]},
     )
     _get_tracking_store().restore_experiment(request_message.experiment_id)
     response_message = RestoreExperiment.Response()
@@ -794,7 +804,10 @@ def _log_metric():
         },
     )
     metric = Metric(
-        request_message.key, request_message.value, request_message.timestamp, request_message.step
+        request_message.key,
+        request_message.value,
+        request_message.timestamp,
+        request_message.step,
     )
     run_id = request_message.run_id or request_message.run_uuid
     _get_tracking_store().log_metric(run_id, metric)
@@ -930,7 +943,10 @@ def _search_runs():
         schema={
             "experiment_ids": [_assert_array],
             "filter": [_assert_string],
-            "max_results": [_assert_intlike, lambda x: _assert_less_than_or_equal(int(x), 50000)],
+            "max_results": [
+                _assert_intlike,
+                lambda x: _assert_less_than_or_equal(int(x), 50000),
+            ],
             "order_by": [_assert_array, _assert_item_type_string],
         },
     )
@@ -1651,7 +1667,10 @@ def _get_registered_model():
 def _update_registered_model():
     request_message = _get_request_message(
         UpdateRegisteredModel(),
-        schema={"name": [_assert_string, _assert_required], "description": [_assert_string]},
+        schema={
+            "name": [_assert_string, _assert_required],
+            "description": [_assert_string],
+        },
     )
     name = request_message.name
     new_description = request_message.description
@@ -1698,7 +1717,10 @@ def _search_registered_models():
         SearchRegisteredModels(),
         schema={
             "filter": [_assert_string],
-            "max_results": [_assert_intlike, lambda x: _assert_less_than_or_equal(int(x), 1000)],
+            "max_results": [
+                _assert_intlike,
+                lambda x: _assert_less_than_or_equal(int(x), 1000),
+            ],
             "order_by": [_assert_array, _assert_item_type_string],
             "page_token": [_assert_string],
         },
@@ -1917,7 +1939,9 @@ def _update_model_version():
     if request_message.HasField("description"):
         new_description = request_message.description
     model_version = _get_model_registry_store().update_model_version(
-        name=request_message.name, version=request_message.version, description=new_description
+        name=request_message.name,
+        version=request_message.version,
+        description=new_description,
     )
     return _wrap_response(UpdateModelVersion.Response(model_version=model_version.to_proto()))
 
@@ -1979,7 +2003,10 @@ def _search_model_versions():
         SearchModelVersions(),
         schema={
             "filter": [_assert_string],
-            "max_results": [_assert_intlike, lambda x: _assert_less_than_or_equal(int(x), 200_000)],
+            "max_results": [
+                _assert_intlike,
+                lambda x: _assert_less_than_or_equal(int(x), 200_000),
+            ],
             "order_by": [_assert_array, _assert_item_type_string],
             "page_token": [_assert_string],
         },
@@ -2034,7 +2061,9 @@ def _delete_model_version_tag():
         },
     )
     _get_model_registry_store().delete_model_version_tag(
-        name=request_message.name, version=request_message.version, key=request_message.key
+        name=request_message.name,
+        version=request_message.version,
+        key=request_message.key,
     )
     return _wrap_response(DeleteModelVersionTag.Response())
 
@@ -2051,7 +2080,9 @@ def _set_registered_model_alias():
         },
     )
     _get_model_registry_store().set_registered_model_alias(
-        name=request_message.name, alias=request_message.alias, version=request_message.version
+        name=request_message.name,
+        alias=request_message.alias,
+        version=request_message.version,
     )
     return _wrap_response(SetRegisteredModelAlias.Response())
 
