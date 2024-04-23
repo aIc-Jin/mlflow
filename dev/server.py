@@ -47,7 +47,7 @@ def main():
     ) as server, subprocess.Popen(
         [
             "yarn",
-            "build",
+            "start",
         ],
         cwd="mlflow/server/js",
     ) as ui:

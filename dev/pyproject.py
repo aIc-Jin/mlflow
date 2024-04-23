@@ -25,7 +25,9 @@ def build(skinny: bool) -> None:
     core_requirements = read_requirements(Path("requirements", "core-requirements.txt"))
     gateways_requirements = read_requirements(Path("requirements", "gateway-requirements.txt"))
     version = re.search(
-        r'^VERSION = "([a-z0-9\.]+)"$', Path("mlflow", "version.py").read_text(), re.MULTILINE
+        r'^VERSION = "([a-z0-9\.]+)"$',
+        Path("mlflow", "version.py").read_text(),
+        re.MULTILINE,
     ).group(1)
     python_version = Path("requirements", "python-version.txt").read_text().strip()
     data = {
@@ -37,7 +39,10 @@ def build(skinny: bool) -> None:
             "name": "mlflow" if not skinny else "mlflow-skinny",
             "version": version,
             "maintainers": [
-                {"name": "Databricks", "email": "mlflow-oss-maintainers@googlegroups.com "}
+                {
+                    "name": "Databricks",
+                    "email": "mlflow-oss-maintainers@googlegroups.com ",
+                }
             ],
             "description": (
                 "MLflow is an open source platform for the complete machine learning lifecycle"
@@ -144,6 +149,7 @@ def build(skinny: bool) -> None:
                         "pyspark/ml/log_model_allowlist.txt",
                         "server/auth/basic_auth.ini",
                         "server/auth/db/migrations/alembic.ini",
+                        "server/js/**/*",
                         "recipes/resources/**/*",
                         "recipes/cards/templates/**/*",
                     ]
