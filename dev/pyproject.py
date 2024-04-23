@@ -149,7 +149,6 @@ def build(skinny: bool) -> None:
                         "pyspark/ml/log_model_allowlist.txt",
                         "server/auth/basic_auth.ini",
                         "server/auth/db/migrations/alembic.ini",
-                        "server/js/**/*",
                         "recipes/resources/**/*",
                         "recipes/cards/templates/**/*",
                     ]

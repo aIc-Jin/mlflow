@@ -12,7 +12,7 @@
 /junit.xml
 
 # production
-/build
+#/build
 /*.jar
 /*.zip
 /zip-staging-dir
