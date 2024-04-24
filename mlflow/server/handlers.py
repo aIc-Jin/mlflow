@@ -1413,21 +1413,18 @@ def create_raglab_run_handler():
     args = request.json
     experiment_id = args.get("experiment_id")
     assert_arg_exists("experiment_id", experiment_id)
-    # run_name = args.get("run_name", None)
-    # tags = args.get("tags", [])
-    prompt_template = args.get("prompt_template")
-    assert_arg_exists("prompt_template", prompt_template)
-    raw_prompt_parameters = args.get("prompt_parameters")
-    assert_arg_exists("prompt_parameters", raw_prompt_parameters)
-    # prompt_parameters = [
-    #     Param(param.get("key"), param.get("value")) for param in args.get("prompt_parameters")
-    # ]
+
     model_route = args.get("model_route")
     assert_arg_exists("model_route", model_route)
-    # raw_model_parameters = args.get("model_parameters", [])
-    # model_parameters = [
-    #     Param(param.get("key"), param.get("value")) for param in raw_model_parameters
-    # ]
+
+    prompt_template = args.get("prompt_template")
+    assert_arg_exists("prompt_template", prompt_template)
+
+    raw_prompt_parameters = args.get("prompt_parameters")
+    assert_arg_exists("prompt_parameters", raw_prompt_parameters)
+
+    vector_store_collection_name = args.get("vector_store_collection_name")
+    assert_arg_exists("vector_store_collection_name", vector_store_collection_name)
 
     model_input = args.get("model_input")
     assert_arg_exists("model_input", model_input)
@@ -1437,9 +1434,6 @@ def create_raglab_run_handler():
 
     user_id = args.get("user_id", "unknown")
     assert_arg_exists("user_id", user_id)
-
-    # use current time if not provided
-    # start_time = args.get("start_time", int(time.time() * 1000))
 
     request_type = request.method
     json_data = request.json

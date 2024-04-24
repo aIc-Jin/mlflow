@@ -22,6 +22,7 @@ const PARAM_PROMPT_TEMPLATE = 'prompt_template';
 const PARAM_MAX_TOKENS = 'max_tokens';
 const PARAM_TEMPERATURE = 'temperature';
 const PARAM_STOP = 'stop';
+const PARAM_VECTOR_STORE_COLLECTION_NAME = 'vector_store_collection_name';
 
 export const extractPromptInputVariables = (promptTemplate: string) => {
   const pattern = /\{\{\s*([\w-]+)\s*\}\}/g;
@@ -67,6 +68,7 @@ export const extractEvaluationPrerequisitesForRun = (run: RunRowType) => {
   const routeType = extractRunRowParam(run, PARAM_ROUTE_TYPE) as ModelGatewayRouteType;
   const promptTemplate = extractRunRowParam(run, PARAM_PROMPT_TEMPLATE);
   const max_tokens = extractRunRowParamInteger(run, PARAM_MAX_TOKENS);
+  const vectorStoreCollectionName = extractRunRowParam(run, PARAM_VECTOR_STORE_COLLECTION_NAME);
 
   const temperature = extractRunRowParamFloat(run, PARAM_TEMPERATURE);
   const stopString = extractRunRowParam(run, PARAM_STOP);
@@ -77,7 +79,13 @@ export const extractEvaluationPrerequisitesForRun = (run: RunRowType) => {
     // Remove empty entries
     .filter(Boolean);
 
-  return { routeName, routeType, promptTemplate, parameters: { max_tokens, temperature, stop } };
+  return {
+    routeName,
+    routeType,
+    promptTemplate,
+    parameters: { max_tokens, temperature, stop },
+    vectorStoreCollectionName,
+  };
 };
 
 /**

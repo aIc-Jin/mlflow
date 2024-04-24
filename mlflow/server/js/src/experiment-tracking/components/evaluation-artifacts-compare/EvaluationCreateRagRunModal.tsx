@@ -81,6 +81,8 @@ export const EvaluationCreateRagRunModal = ({
   const [isViewExamplesModalOpen, setViewExamplesModalOpen] = useState(false);
   const cancelTokenRef = useRef<string | null>(null);
 
+  const [vectorStoreCollectionName, updateVectorStoreCollectionName] = useState('');
+
   const dispatch = useDispatch<ThunkDispatch>();
 
   useEffect(() => {
@@ -122,6 +124,7 @@ export const EvaluationCreateRagRunModal = ({
         promptTemplate: duplicatedPromptTemplate,
         routeName: duplicatedRouteName,
         parameters: duplicatedParameters,
+        vectorStoreCollectionName: duplicatedVectorStoreCollectionName,
       } = extractEvaluationPrerequisitesForRun(runBeingDuplicated);
 
       extractRequiredInputParamsForRun(runBeingDuplicated);
@@ -137,6 +140,9 @@ export const EvaluationCreateRagRunModal = ({
       if (duplicatedRouteName) {
         updateSelectedModels([...selectedModels, duplicatedRouteName]);
       }
+      if (duplicatedVectorStoreCollectionName) {
+        updateVectorStoreCollectionName(duplicatedVectorStoreCollectionName);
+      }
       setEvaluationOutput('');
       setOutputDirty(false);
       const duplicatedRunName = getDuplicatedRunName(
@@ -146,7 +152,14 @@ export const EvaluationCreateRagRunModal = ({
       setNewRunName(duplicatedRunName);
       clearInputVariableValues();
     }
-  }, [runBeingDuplicated, clearInputVariableValues, updateParameter, updatePromptTemplate, visibleRuns]);
+  }, [
+    runBeingDuplicated,
+    clearInputVariableValues,
+    updateParameter,
+    updatePromptTemplate,
+    updateVectorStoreCollectionName,
+    visibleRuns,
+  ]);
 
   const modelRoutesUnified = useSelector(
     ({ modelGateway }: { modelGateway: ModelGatewayReduxState }) => modelGateway.modelGatewayRoutes,
@@ -166,7 +179,7 @@ export const EvaluationCreateRagRunModal = ({
       setOutputDirty(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputVariableValues, promptTemplate, parameters, selectedModels]);
+  }, [inputVariableValues, promptTemplate, parameters, selectedModels, vectorStoreCollectionName]);
 
   const { refreshRuns: refreshRunsFromContext, updateSearchFacets } = useFetchExperimentRuns();
 
@@ -185,14 +198,15 @@ export const EvaluationCreateRagRunModal = ({
     dispatch(
       createRagLabRunApi({
         experimentId,
-        promptTemplate,
-        modelInput,
-        modelParameters,
         modelRouteName,
+        modelParameters,
+        promptTemplate,
         promptParameters: inputVariableValues,
-        modelOutput: evaluationOutput,
         runName: newRunName,
+        modelInput,
+        modelOutput: evaluationOutput,
         modelOutputParameters: evaluationMetadata,
+        vectorStoreCollectionName: vectorStoreCollectionName,
       }),
     )
       .then(() => {
@@ -455,14 +469,14 @@ export const EvaluationCreateRagRunModal = ({
               <FormUI.Label htmlFor="new_run_name">
                 <FormattedMessage
                   defaultMessage="New run name"
-                  description="Experiment page > new run modal > run name input label"
+                  description="Experiment Page > New Rag Run Modal > Run Name Input Label"
                 />
                 {!newRunName.trim() && (
                   <FormUI.Message
                     type="error"
                     message={intl.formatMessage({
                       defaultMessage: 'Please provide run name',
-                      description: 'Experiment page > new run modal > invalid state - no run name provided',
+                      description: 'Experiment Page > New Rag Run Modal > Invalid State - No Run Name Provided',
                     })}
                   />
                 )}
@@ -484,25 +498,14 @@ export const EvaluationCreateRagRunModal = ({
                 <FormUI.Label htmlFor="prompt_template">
                   <FormattedMessage
                     defaultMessage="Prompt Template"
-                    description="Experiment page > new run modal > prompt template input label"
+                    description="Experiment Page > New Rag Run Modal > Prompt Template Input Label"
                   />
                 </FormUI.Label>
-                <Button
-                  componentId="codegen_mlflow_app_src_experiment-tracking_components_evaluation-artifacts-compare_evaluationcreatepromptrunmodal.tsx_695"
-                  onClick={() => setViewExamplesModalOpen(true)}
-                  style={{ marginLeft: 'auto' }}
-                  size="small"
-                >
-                  <FormattedMessage
-                    defaultMessage="View Examples"
-                    description="Experiment page > new run modal > prompt examples button"
-                  />
-                </Button>
               </div>
               <FormUI.Hint>
                 <FormattedMessage
                   defaultMessage={`Give instructions to the model. Use '{{ }}' or the "Add new variable" button to add variables to your prompt.`}
-                  description="Experiment page > new run modal > prompt template input hint"
+                  description="Experiment Page > New Rag Run Modal > Prompt Template Input Hint"
                 />
               </FormUI.Hint>
             </>
@@ -540,9 +543,36 @@ export const EvaluationCreateRagRunModal = ({
             >
               <FormattedMessage
                 defaultMessage="Add new variable"
-                description='Experiment page > new run modal > "add new variable" button label'
+                description='Experiment Page > New Rag Run Modal > "Add New Variable" Button Label'
               />
             </Button>
+          </div>
+          <div css={styles.formItem}>
+            <>
+              <div css={{ display: 'flex', justifyContent: 'space-between' }}>
+                <FormUI.Label htmlFor="vector_store_collection_name">
+                  <FormattedMessage
+                    defaultMessage="Vector Store Collection Name"
+                    description="Experiment Page > New Rag Run Modal > Vector Store Collection Name Input Label"
+                  />
+                </FormUI.Label>
+              </div>
+              <FormUI.Hint>
+                <FormattedMessage
+                  defaultMessage={`Enter the name of the vector store collection to use for the model output`}
+                  description="Experiment Page > New Rag Run Modal > Vector Store Collection Name Input Hint"
+                />
+              </FormUI.Hint>
+            </>
+
+            <TextArea
+              id="vector_store_collection_name"
+              autoSize
+              data-testid="vector-store-collection-name-input"
+              value={vectorStoreCollectionName}
+              onChange={(e) => updateVectorStoreCollectionName(e.target.value)}
+            />
+            <EvaluationCreateRunPromptTemplateErrors violations={inputVariableNameViolations} />
           </div>
         </div>
       </div>

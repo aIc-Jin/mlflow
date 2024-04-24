@@ -618,17 +618,19 @@ export const createRagLabRunApi = ({
   modelInput,
   modelOutput,
   modelOutputParameters,
+  vectorStoreCollectionName,
   tags = [],
 }: {
   experimentId: string;
-  runName?: string;
+  modelRouteName: string[];
+  modelParameters: Record<string, string | number | string[] | undefined>;
   promptTemplate: string;
   promptParameters: Record<string, string>;
-  modelRouteName: string[];
+  runName?: string;
   modelInput: string;
   modelOutput: string;
-  modelParameters: Record<string, string | number | string[] | undefined>;
   modelOutputParameters: Record<string, string | number>;
+  vectorStoreCollectionName: string;
   tags?: { key: string; value: string }[];
 }) => {
   const tupleToKeyValue = <T>(dict: Record<string, T>) => Object.entries(dict).map(([key, value]) => ({ key, value }));
@@ -641,15 +643,16 @@ export const createRagLabRunApi = ({
 
   const payload = {
     experiment_id: experimentId,
-    run_name: runName || undefined,
-    tags,
-    prompt_template: promptTemplate,
-    prompt_parameters: tupleToKeyValue(promptParameters),
     model_route: modelRouteName,
     model_parameters: tupleToKeyValueFlattenArray(modelParameters),
+    prompt_template: promptTemplate,
+    prompt_parameters: tupleToKeyValue(promptParameters),
+    run_name: runName || undefined,
     model_input: modelInput,
     model_output: modelOutput,
     model_output_parameters: tupleToKeyValue(modelOutputParameters),
+    vector_store_collection_name: vectorStoreCollectionName,
+    tags,
     mlflow_version: MLFLOW_PUBLISHED_VERSION,
   };
   return {

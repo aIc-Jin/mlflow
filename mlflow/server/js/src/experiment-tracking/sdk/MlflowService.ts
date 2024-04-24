@@ -151,13 +151,14 @@ export class MlflowService {
    */
   static createRagLabRun = (data: {
     experiment_id: string;
-    tags?: { key: string; value: string }[];
-    prompt_template: string;
-    prompt_parameters: { key: string; value: string }[];
     model_route: string[];
     model_parameters: { key: string; value: string | number | undefined }[];
-    model_output_parameters: { key: string; value: string | number }[];
+    prompt_template: string;
+    prompt_parameters: { key: string; value: string }[];
     model_output: string;
+    model_output_parameters: { key: string; value: string | number }[];
+    vector_store_collection_name: string;
+    tags?: { key: string; value: string }[];
   }) => postJson({ relativeUrl: 'ajax-api/2.0/mlflow/runs/create-raglab-run', data });
 
   /**
