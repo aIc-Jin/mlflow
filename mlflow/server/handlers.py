@@ -1404,7 +1404,7 @@ def create_raglab_run_handler():
     def assert_arg_exists(arg_name, arg):
         if not arg:
             raise MlflowException(
-                message=f"CreatePromptlabRun request must specify {arg_name}.",
+                message=f"CreateRaglabRun request must specify {arg_name}.",
                 error_code=INVALID_PARAMETER_VALUE,
             )
 
@@ -1438,7 +1438,7 @@ def create_raglab_run_handler():
     request_type = request.method
     json_data = request.json
 
-    response = requests.request(request_type, "http://0.0.0.0:8000/", json=json_data)
+    response = requests.request(request_type, "http://0.0.0.0:8000/api/v1/pipe/", json=json_data)
 
     if response.status_code == 200:
         return response.json()
