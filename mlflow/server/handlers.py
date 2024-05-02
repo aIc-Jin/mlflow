@@ -1414,8 +1414,8 @@ def create_raglab_run_handler():
     experiment_id = args.get("experiment_id")
     assert_arg_exists("experiment_id", experiment_id)
 
-    model_route = args.get("model_route")
-    assert_arg_exists("model_route", model_route)
+    model_route_name_of_platform = args.get("model_route_name_of_platform")
+    assert_arg_exists("model_route_name_of_platform", model_route_name_of_platform)
 
     prompt_template = args.get("prompt_template")
     assert_arg_exists("prompt_template", prompt_template)

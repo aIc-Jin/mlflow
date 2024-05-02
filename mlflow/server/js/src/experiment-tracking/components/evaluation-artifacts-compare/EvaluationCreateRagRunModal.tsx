@@ -71,7 +71,7 @@ export const EvaluationCreateRagRunModal = ({
   const [, setViewMode] = useExperimentPageViewMode();
 
   const [selectedModels, updateSelectedModels] = useState<string[]>([]);
-  const [newRunName, setNewRunName] = useState('');
+  const [newExperimentName, setNewExperimentName] = useState('');
   const [isCreatingRun, setIsCreatingRun] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [lastEvaluationError, setLastEvaluationError] = useState<string | null>(null);
@@ -107,7 +107,7 @@ export const EvaluationCreateRagRunModal = ({
 
   useEffect(() => {
     if (isOpen && !runBeingDuplicated) {
-      setNewRunName(generateRandomRunName());
+      setNewExperimentName(generateRandomRunName());
     }
   }, [isOpen, runBeingDuplicated]);
 
@@ -149,7 +149,7 @@ export const EvaluationCreateRagRunModal = ({
         runBeingDuplicated.runName,
         compact(visibleRuns.map(({ runName }) => runName)),
       );
-      setNewRunName(duplicatedRunName);
+      setNewExperimentName(duplicatedRunName);
       clearInputVariableValues();
     }
   }, [
@@ -202,7 +202,7 @@ export const EvaluationCreateRagRunModal = ({
         modelParameters,
         promptTemplate,
         promptParameters: inputVariableValues,
-        runName: newRunName,
+        experimentName: newExperimentName,
         modelInput,
         modelOutput: evaluationOutput,
         modelOutputParameters: evaluationMetadata,
@@ -257,7 +257,7 @@ export const EvaluationCreateRagRunModal = ({
     [inputVariables, inputVariableValues],
   );
 
-  const runNameProvided = newRunName.trim().length > 0;
+  const experimentNameProvided = newExperimentName.trim().length > 0;
 
   // We can evaluate if we have selected model, prompt template and all input values.
   // It should be possible to evaluate without input variables for the purpose of playing around.
@@ -272,7 +272,7 @@ export const EvaluationCreateRagRunModal = ({
       allInputValuesProvided &&
       !outputDirty &&
       inputVariables.length > 0 &&
-      runNameProvided &&
+      experimentNameProvided &&
       !lastEvaluationError,
   );
 
@@ -314,7 +314,7 @@ export const EvaluationCreateRagRunModal = ({
         description: 'Experiment page > new run modal > invalid state - no input variables defined',
       });
     }
-    if (!runNameProvided) {
+    if (!experimentNameProvided) {
       return intl.formatMessage({
         defaultMessage: 'Please provide run name',
         description: 'Experiment page > new run modal > invalid state - no run name provided',
@@ -329,7 +329,7 @@ export const EvaluationCreateRagRunModal = ({
     evaluationOutput,
     promptTemplateProvided,
     selectedModels,
-    runNameProvided,
+    experimentNameProvided,
   ]);
 
   // Let's prepare a proper tooltip content for every scenario
@@ -466,27 +466,27 @@ export const EvaluationCreateRagRunModal = ({
           )}
           <div css={styles.formItem}>
             <>
-              <FormUI.Label htmlFor="new_run_name">
+              <FormUI.Label htmlFor="new_experiment_name">
                 <FormattedMessage
-                  defaultMessage="New run name"
-                  description="Experiment Page > New Rag Run Modal > Run Name Input Label"
+                  defaultMessage="New experiment name"
+                  description="Experiment Page > New Rag Run Modal > experiment Name Input Label"
                 />
-                {!newRunName.trim() && (
+                {!newExperimentName.trim() && (
                   <FormUI.Message
                     type="error"
                     message={intl.formatMessage({
-                      defaultMessage: 'Please provide run name',
-                      description: 'Experiment Page > New Rag Run Modal > Invalid State - No Run Name Provided',
+                      defaultMessage: 'Please provide experiment name',
+                      description: 'Experiment Page > New Rag Run Modal > Invalid State - No experiment Name Provided',
                     })}
                   />
                 )}
               </FormUI.Label>
               <Input
-                id="new_run_name"
-                data-testid="run-name-input"
+                id="new_experiment_name"
+                data-testid="experiment-name-input"
                 required
-                value={newRunName}
-                onChange={(e) => setNewRunName(e.target.value)}
+                value={newExperimentName}
+                onChange={(e) => setNewExperimentName(e.target.value)}
               />
             </>
           </div>
