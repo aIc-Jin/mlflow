@@ -16,6 +16,7 @@ export const DEFAULT_PROMPTLAB_PROMPT_COLUMN = 'prompt';
 export const PROMPTLAB_METADATA_COLUMN_LATENCY = 'MLFLOW_latency';
 export const PROMPTLAB_METADATA_COLUMN_TOTAL_TOKENS = 'MLFLOW_total_tokens';
 
+const PARAM_PLATFORM_NAME = 'platform_name';
 const PARAM_MODEL_ROUTE = 'model_route';
 const PARAM_ROUTE_TYPE = 'route_type';
 const PARAM_PROMPT_TEMPLATE = 'prompt_template';
@@ -64,6 +65,7 @@ export const extractRequiredInputParamsForRun = (run: RunRowType) => {
  * Parses the run entity and extracts all information necessary for evaluating values
  */
 export const extractEvaluationPrerequisitesForRun = (run: RunRowType) => {
+  const platformName = extractRunRowParam(run, PARAM_PLATFORM_NAME);
   const routeName = extractRunRowParam(run, PARAM_MODEL_ROUTE);
   const routeType = extractRunRowParam(run, PARAM_ROUTE_TYPE) as ModelGatewayRouteType;
   const promptTemplate = extractRunRowParam(run, PARAM_PROMPT_TEMPLATE);
@@ -80,6 +82,7 @@ export const extractEvaluationPrerequisitesForRun = (run: RunRowType) => {
     .filter(Boolean);
 
   return {
+    platformName,
     routeName,
     routeType,
     promptTemplate,

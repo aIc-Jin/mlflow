@@ -151,7 +151,7 @@ export class MlflowService {
    */
   static createRagLabRun = (data: {
     experiment_id: string;
-    model_route: string[];
+    model_route_name_of_platform: Record<string, string[]>;
     model_parameters: { key: string; value: string | number | undefined }[];
     prompt_template: string;
     prompt_parameters: { key: string; value: string }[];

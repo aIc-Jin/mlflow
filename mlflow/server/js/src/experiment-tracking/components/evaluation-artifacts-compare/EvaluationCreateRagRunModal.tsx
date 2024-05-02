@@ -70,6 +70,7 @@ export const EvaluationCreateRagRunModal = ({
   const { parameters, updateParameter } = usePromptEvaluationParameters();
   const [, setViewMode] = useExperimentPageViewMode();
 
+  const [selectedPlatforms, updateSelectedPlatforms] = useState<string[]>([]);
   const [selectedModels, updateSelectedModels] = useState<string[]>([]);
   const [newExperimentName, setNewExperimentName] = useState('');
   const [isCreatingRun, setIsCreatingRun] = useState(false);
@@ -80,6 +81,7 @@ export const EvaluationCreateRagRunModal = ({
   const [outputDirty, setOutputDirty] = useState(false);
   const [isViewExamplesModalOpen, setViewExamplesModalOpen] = useState(false);
   const cancelTokenRef = useRef<string | null>(null);
+  const modelRouteNamesOfPlatform: { [key: string]: string[] } = {};
 
   const [vectorStoreCollectionName, updateVectorStoreCollectionName] = useState('');
 
@@ -121,13 +123,17 @@ export const EvaluationCreateRagRunModal = ({
   useEffect(() => {
     if (runBeingDuplicated) {
       const {
-        promptTemplate: duplicatedPromptTemplate,
+        platformName: duplicatedPlatformName,
         routeName: duplicatedRouteName,
+        promptTemplate: duplicatedPromptTemplate,
         parameters: duplicatedParameters,
         vectorStoreCollectionName: duplicatedVectorStoreCollectionName,
       } = extractEvaluationPrerequisitesForRun(runBeingDuplicated);
 
       extractRequiredInputParamsForRun(runBeingDuplicated);
+      if (duplicatedPlatformName) {
+        updateSelectedPlatforms([...selectedPlatforms, duplicatedPlatformName]);
+      }
       if (duplicatedPromptTemplate) {
         updatePromptTemplate(duplicatedPromptTemplate);
       }
@@ -154,6 +160,7 @@ export const EvaluationCreateRagRunModal = ({
     }
   }, [
     runBeingDuplicated,
+    updateSelectedPlatforms,
     clearInputVariableValues,
     updateParameter,
     updatePromptTemplate,
@@ -165,10 +172,25 @@ export const EvaluationCreateRagRunModal = ({
     ({ modelGateway }: { modelGateway: ModelGatewayReduxState }) => modelGateway.modelGatewayRoutes,
   );
 
-  const modelList = ['GPT-3', 'GPT-4', 'ALPHA-LLM', 'GEMINI'];
+  const platformList = ['openai', 'huggingface', 'alphacode', 'azure', 'google', 'aws'];
+
+  const modelList = {
+    'gpt-3.5-turbo': ['openai', 'azure'],
+    'gpt-4': ['openai', 'azure'],
+    transformer: ['huggingface'],
+    'alpha-llm': ['alphacode'],
+    gemini: ['google'],
+    bedrock: ['aws'],
+  };
+
+  const selectModelList = Object.entries(modelList)
+    .filter(([model, platforms]) => selectedPlatforms.some((platform) => platforms.includes(platform)))
+    .flatMap(([model]) => model);
 
   // In the next version, routes are already filtered
-  const supportedModelRouteListUnified = useMemo(() => modelList, [modelList]);
+  const supportedPlatformRouteListUnified = useMemo(() => platformList, [platformList]);
+
+  const supportedModelRouteListUnified = useMemo(() => selectModelList, [selectModelList]);
 
   // Determines if model gateway routes are being loaded
   const modelRoutesLoading = useSelector(
@@ -191,14 +213,30 @@ export const EvaluationCreateRagRunModal = ({
 
   const onHandleSubmit = () => {
     setIsCreatingRun(true);
-    const modelRouteName = selectedModels;
+
+    const modelRouteNamesOfPlatform: { [key: string]: string[] } = Object.entries(modelList).reduce(
+      (acc: { [key: string]: string[] }, [model, platforms]) => {
+        platforms.forEach((platform) => {
+          if (selectedPlatforms.includes(platform) && selectedModels.includes(model)) {
+            if (!acc.hasOwnProperty(platform)) {
+              acc[platform] = [model];
+            } else {
+              acc[platform].push(model);
+            }
+          }
+        });
+        return acc;
+      },
+      {},
+    );
+
     const modelParameters = { ...parameters, route_type: modelRoutesUnified[selectedModels[0]]?.type }; // array index 수정 필요
 
     const modelInput = compilePromptInputText(promptTemplate, inputVariableValues);
     dispatch(
       createRagLabRunApi({
         experimentId,
-        modelRouteName,
+        modelRouteNamesOfPlatform,
         modelParameters,
         promptTemplate,
         promptParameters: inputVariableValues,
@@ -241,6 +279,16 @@ export const EvaluationCreateRagRunModal = ({
       cancelTokenRef.current = null;
     }
   }, [setIsEvaluating]);
+
+  const selectPlatformLabel = intl.formatMessage({
+    defaultMessage: 'Served Platform',
+    description: 'Experiment page > new run modal > served Platform endpoint label',
+  });
+
+  const selectPlatformPlaceholder = intl.formatMessage({
+    defaultMessage: 'Select Platform endpoint',
+    description: 'Experiment page > new run modal > served Platform endpoint placeholder',
+  });
 
   const selectModelLabel = intl.formatMessage({
     defaultMessage: 'Served LLM model',
@@ -359,8 +407,44 @@ export const EvaluationCreateRagRunModal = ({
     return selectedRouteName;
   };
 
+  const findPlatformNamesByModel = (modelRoute: string) => {
+    let platformName = '';
+
+    Object.entries(modelList).forEach(([model, platforms]) => {
+      platforms.forEach((platform) => {
+        if (selectedPlatforms.includes(platform) && model === modelRoute) {
+          if (platformName !== '') {
+            platformName += ', ' + platform;
+          } else {
+            platformName = platform;
+          }
+        }
+      });
+    });
+    return platformName;
+  };
+
+  const getRoutePlatformOptionList = () => {
+    return supportedPlatformRouteListUnified.map((platformRoute) => (
+      <DialogComboboxOptionListSelectItem
+        value={platformRoute}
+        key={platformRoute}
+        onChange={(value) => {
+          if (selectedPlatforms.filter((platform) => platform === value).length > 0) {
+            updateSelectedPlatforms(selectedPlatforms.filter((platform) => platform !== value));
+            return;
+          } else {
+            updateSelectedPlatforms([...selectedPlatforms, value]);
+          }
+        }}
+        checked={selectedPlatforms.filter((platform) => platform === platformRoute).length > 0}
+      >
+        {platformRoute}
+      </DialogComboboxOptionListSelectItem>
+    ));
+  };
+
   const getRouteOptionList = () => {
-    console.log('supportedModelRouteListUnified: ', supportedModelRouteListUnified);
     return supportedModelRouteListUnified.map((modelRoute) => (
       <DialogComboboxOptionListSelectItem
         value={modelRoute}
@@ -376,7 +460,7 @@ export const EvaluationCreateRagRunModal = ({
         checked={selectedModels.filter((model) => model === modelRoute).length > 0}
       >
         {modelRoute}
-        {modelRoute && <DialogComboboxHintRow>{modelRoute}</DialogComboboxHintRow>}
+        {modelRoute && <DialogComboboxHintRow>{findPlatformNamesByModel(modelRoute)}</DialogComboboxHintRow>}
       </DialogComboboxOptionListSelectItem>
     ));
   };
@@ -434,6 +518,35 @@ export const EvaluationCreateRagRunModal = ({
         }}
       >
         <div>
+          <FormUI.Label htmlFor="selected_platform" css={{ marginBottom: theme.spacing.sm }}>
+            {selectPlatformLabel}
+          </FormUI.Label>
+          <div css={{ marginBottom: theme.spacing.lg, display: 'flex', alignItems: 'center' }}>
+            <DialogCombobox
+              label={selectPlatformLabel}
+              modal={false}
+              value={selectedPlatforms ? selectedPlatforms : undefined}
+              multiSelect={true}
+              stayOpenOnSelection={true}
+            >
+              <DialogComboboxTrigger
+                id="selected_platform"
+                css={{ width: '100%' }}
+                allowClear={false}
+                placeholder={selectPlatformPlaceholder}
+                withInlineLabel={false}
+              />
+              <DialogComboboxContent loading={modelRoutesLoading} maxHeight={400} matchTriggerWidth>
+                {!modelRoutesLoading && (
+                  <DialogComboboxOptionList>
+                    <DialogComboboxOptionListSearch autoFocus>
+                      {getRoutePlatformOptionList()}
+                    </DialogComboboxOptionListSearch>
+                  </DialogComboboxOptionList>
+                )}
+              </DialogComboboxContent>
+            </DialogCombobox>
+          </div>
           <FormUI.Label htmlFor="selected_model" css={{ marginBottom: theme.spacing.sm }}>
             {selectModelLabel}
           </FormUI.Label>

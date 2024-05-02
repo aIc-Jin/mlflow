@@ -610,11 +610,11 @@ export const CREATE_PROMPT_LAB_RUN = 'CREATE_PROMPT_LAB_RUN';
 
 export const createRagLabRunApi = ({
   experimentId,
-  modelRouteName,
+  modelRouteNamesOfPlatform,
   modelParameters,
   promptTemplate,
   promptParameters,
-  runName,
+  experimentName,
   modelInput,
   modelOutput,
   modelOutputParameters,
@@ -622,11 +622,11 @@ export const createRagLabRunApi = ({
   tags = [],
 }: {
   experimentId: string;
-  modelRouteName: string[];
+  modelRouteNamesOfPlatform: Record<string, string[]>;
   modelParameters: Record<string, string | number | string[] | undefined>;
   promptTemplate: string;
   promptParameters: Record<string, string>;
-  runName?: string;
+  experimentName?: string;
   modelInput: string;
   modelOutput: string;
   modelOutputParameters: Record<string, string | number>;
@@ -643,11 +643,11 @@ export const createRagLabRunApi = ({
 
   const payload = {
     experiment_id: experimentId,
-    model_route: modelRouteName,
+    model_route_name_of_platform: modelRouteNamesOfPlatform,
     model_parameters: tupleToKeyValueFlattenArray(modelParameters),
     prompt_template: promptTemplate,
     prompt_parameters: tupleToKeyValue(promptParameters),
-    run_name: runName || undefined,
+    experiment_name: experimentName || undefined,
     model_input: modelInput,
     model_output: modelOutput,
     model_output_parameters: tupleToKeyValue(modelOutputParameters),
