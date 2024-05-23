@@ -616,8 +616,6 @@ export const createRagLabRunApi = ({
   promptParameters,
   experimentName,
   modelInput,
-  modelOutput,
-  modelOutputParameters,
   vectorStoreCollectionName,
   tags = [],
 }: {
@@ -628,8 +626,6 @@ export const createRagLabRunApi = ({
   promptParameters: Record<string, string>;
   experimentName?: string;
   modelInput: string;
-  modelOutput: string;
-  modelOutputParameters: Record<string, string | number>;
   vectorStoreCollectionName: string;
   tags?: { key: string; value: string }[];
 }) => {
@@ -649,8 +645,6 @@ export const createRagLabRunApi = ({
     prompt_parameters: tupleToKeyValue(promptParameters),
     experiment_name: experimentName || undefined,
     model_input: modelInput,
-    model_output: modelOutput,
-    model_output_parameters: tupleToKeyValue(modelOutputParameters),
     vector_store_collection_name: vectorStoreCollectionName,
     tags,
     mlflow_version: MLFLOW_PUBLISHED_VERSION,

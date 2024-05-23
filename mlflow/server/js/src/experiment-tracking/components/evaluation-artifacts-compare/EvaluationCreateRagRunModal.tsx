@@ -17,14 +17,12 @@ import {
   useDesignSystemTheme,
 } from '@databricks/design-system';
 import { compact } from 'lodash';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import Utils from '../../../common/utils/Utils';
 import { ThunkDispatch } from '../../../redux-types';
 import { createRagLabRunApi } from '../../actions';
-import { ModelGatewayReduxState } from '../../reducers/ModelGatewayReducer';
-import { ModelGatewayResponseType } from '../../sdk/ModelGatewayService';
 import { generateRandomRunName, getDuplicatedRunName } from '../../utils/RunNameUtils';
 import { useExperimentIds } from '../experiment-page/hooks/useExperimentIds';
 import { useFetchExperimentRuns } from '../experiment-page/hooks/useFetchExperimentRuns';
@@ -69,10 +67,6 @@ export const EvaluationCreateRagRunModal = ({
   const [selectedModels, updateSelectedModels] = useState<string[]>([]);
   const [newExperimentName, setNewExperimentName] = useState('');
   const [isCreatingRun, setIsCreatingRun] = useState(false);
-  const [lastEvaluationError, setLastEvaluationError] = useState<string | null>(null);
-  const [evaluationOutput, setEvaluationOutput] = useState('');
-  const [evaluationMetadata, setEvaluationMetadata] = useState<Partial<ModelGatewayResponseType['metadata']>>({});
-  const [outputDirty, setOutputDirty] = useState(false);
 
   const [vectorStoreCollectionName, updateVectorStoreCollectionName] = useState('');
 
@@ -140,8 +134,6 @@ export const EvaluationCreateRagRunModal = ({
       if (duplicatedVectorStoreCollectionName) {
         updateVectorStoreCollectionName(duplicatedVectorStoreCollectionName);
       }
-      setEvaluationOutput('');
-      setOutputDirty(false);
       const duplicatedRunName = getDuplicatedRunName(
         runBeingDuplicated.runName,
         compact(visibleRuns.map(({ runName }) => runName)),
@@ -159,9 +151,6 @@ export const EvaluationCreateRagRunModal = ({
     selectedPlatforms
   ]);
 
-  const modelRoutesUnified = useSelector(
-    ({ modelGateway }: { modelGateway: ModelGatewayReduxState }) => modelGateway.modelGatewayRoutes,
-  );
 
   const platformList = ['openai', 'huggingface', 'alphacode', 'azure', 'google', 'aws'];
 
@@ -184,9 +173,6 @@ export const EvaluationCreateRagRunModal = ({
   const supportedModelRouteListUnified = useMemo(() => selectModelList, [selectModelList]);
 
   // Determines if model gateway routes are being loaded
-  const modelRoutesLoading = useSelector(
-    ({ modelGateway }: { modelGateway: ModelGatewayReduxState }) => modelGateway.modelGatewayRoutesLoading.loading,
-  );
   useEffect(() => {
     if (evaluationOutput) {
       setOutputDirty(true);
@@ -221,7 +207,7 @@ export const EvaluationCreateRagRunModal = ({
       {},
     );
 
-    const modelParameters = { ...parameters, route_type: modelRoutesUnified[selectedModels[0]]?.type }; // array index 수정 필요
+    const modelParameters = { ...parameters }; // array index 수정 필요
 
     const modelInput = compilePromptInputText(promptTemplate, inputVariableValues);
     dispatch(
@@ -233,8 +219,6 @@ export const EvaluationCreateRagRunModal = ({
         promptParameters: inputVariableValues,
         experimentName: newExperimentName,
         modelInput,
-        modelOutput: evaluationOutput,
-        modelOutputParameters: evaluationMetadata,
         vectorStoreCollectionName: vectorStoreCollectionName,
       }),
     )
@@ -292,7 +276,6 @@ export const EvaluationCreateRagRunModal = ({
 
   // We can evaluate if we have selected model, prompt template and all input values.
   // It should be possible to evaluate without input variables for the purpose of playing around.
-  const evaluateButtonEnabled = selectedModels && promptTemplateProvided && allInputValuesProvided;
 
   // We can log the run if we have: selected model, prompt template, all input values,
   // output that is present and up-to-date. Also, in order to log the run, we should have at least
@@ -301,10 +284,8 @@ export const EvaluationCreateRagRunModal = ({
     selectedModels &&
       promptTemplateProvided &&
       allInputValuesProvided &&
-      !outputDirty &&
       inputVariables.length > 0 &&
-      experimentNameProvided &&
-      !lastEvaluationError,
+      experimentNameProvided,
   );
 
   // Let's prepare a proper tooltip content for every scenario
@@ -327,18 +308,6 @@ export const EvaluationCreateRagRunModal = ({
         description: 'Experiment page > new run modal > invalid state - no prompt inputs provided',
       });
     }
-    if (!evaluationOutput) {
-      return intl.formatMessage({
-        defaultMessage: 'You need to evaluate the resulting output first',
-        description: 'Experiment page > new run modal > invalid state - result not evaluated',
-      });
-    }
-    if (outputDirty) {
-      return intl.formatMessage({
-        defaultMessage: 'Input data or prompt template have changed since last evaluation of the output',
-        description: 'Experiment page > new run modal > dirty output (out of sync with new data)',
-      });
-    }
     if (inputVariables.length === 0) {
       return intl.formatMessage({
         defaultMessage: 'You need to define at least one input variable',
@@ -356,39 +325,10 @@ export const EvaluationCreateRagRunModal = ({
     allInputValuesProvided,
     inputVariables.length,
     intl,
-    outputDirty,
-    evaluationOutput,
     promptTemplateProvided,
     selectedModels,
     experimentNameProvided,
   ]);
-
-  // Let's prepare a proper tooltip content for every scenario
-  const evaluateButtonTooltip = useMemo(() => {
-    if (!selectedModels) {
-      return intl.formatMessage({
-        defaultMessage: 'You need to select a served model endpoint using dropdown first',
-        description: 'Experiment page > new run modal > invalid state - no model endpoint selected',
-      });
-    }
-    if (!promptTemplateProvided) {
-      return intl.formatMessage({
-        defaultMessage: 'You need to provide a prompt template',
-        description: 'Experiment page > new run modal > invalid state - no prompt template provided',
-      });
-    }
-    if (!allInputValuesProvided) {
-      return intl.formatMessage({
-        defaultMessage: 'You need to provide values for all defined inputs',
-        description: 'Experiment page > new run modal > invalid state - no prompt inputs provided',
-      });
-    }
-    return null;
-  }, [allInputValuesProvided, intl, promptTemplateProvided, selectedModels]);
-
-  const formatVisibleRouteName = (selectedRouteName: string[]) => {
-    return selectedRouteName;
-  };
 
   const findPlatformNamesByModel = (modelRoute: string) => {
     let platformName = '';
@@ -519,14 +459,12 @@ export const EvaluationCreateRagRunModal = ({
                 placeholder={selectPlatformPlaceholder}
                 withInlineLabel={false}
               />
-              <DialogComboboxContent loading={modelRoutesLoading} maxHeight={400} matchTriggerWidth>
-                {!modelRoutesLoading && (
+              <DialogComboboxContent maxHeight={400} matchTriggerWidth>
                   <DialogComboboxOptionList>
                     <DialogComboboxOptionListSearch autoFocus>
                       {getRoutePlatformOptionList()}
                     </DialogComboboxOptionListSearch>
                   </DialogComboboxOptionList>
-                )}
               </DialogComboboxContent>
             </DialogCombobox>
           </div>
@@ -548,12 +486,10 @@ export const EvaluationCreateRagRunModal = ({
                 placeholder={selectModelPlaceholder}
                 withInlineLabel={false}
               />
-              <DialogComboboxContent loading={modelRoutesLoading} maxHeight={400} matchTriggerWidth>
-                {!modelRoutesLoading && (
+              <DialogComboboxContent maxHeight={400} matchTriggerWidth>
                   <DialogComboboxOptionList>
                     <DialogComboboxOptionListSearch autoFocus>{getRouteOptionList()}</DialogComboboxOptionListSearch>
                   </DialogComboboxOptionList>
-                )}
               </DialogComboboxContent>
             </DialogCombobox>
           </div>

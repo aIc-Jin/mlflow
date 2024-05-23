@@ -155,8 +155,6 @@ export class MlflowService {
     model_parameters: { key: string; value: string | number | undefined }[];
     prompt_template: string;
     prompt_parameters: { key: string; value: string }[];
-    model_output: string;
-    model_output_parameters: { key: string; value: string | number }[];
     vector_store_collection_name: string;
     tags?: { key: string; value: string }[];
   }) => postJson({ relativeUrl: 'ajax-api/2.0/mlflow/runs/create-raglab-run', data });
