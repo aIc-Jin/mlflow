@@ -23,13 +23,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import Utils from '../../../common/utils/Utils';
 import { ThunkDispatch } from '../../../redux-types';
 import { createRagLabRunApi } from '../../actions';
-import { generateRandomRunName, getDuplicatedRunName } from '../../utils/RunNameUtils';
+import { generateRandomRunName } from '../../utils/RunNameUtils';
 import { useExperimentIds } from '../experiment-page/hooks/useExperimentIds';
 import { useFetchExperimentRuns } from '../experiment-page/hooks/useFetchExperimentRuns';
 import {
   compilePromptInputText,
-  extractEvaluationPrerequisitesForRun,
-  extractRequiredInputParamsForRun,
 } from '../prompt-engineering/PromptEngineering.utils';
 import { EvaluationCreatePromptParameters } from './EvaluationCreatePromptParameters';
 import { usePromptEvaluationInputValues } from './hooks/usePromptEvaluationInputValues';
@@ -86,70 +84,20 @@ export const EvaluationCreateRagRunModal = ({
     inputVariableValues,
     updateInputVariableValue,
     inputVariableNameViolations,
-    clearInputVariableValues,
   } = usePromptEvaluationInputValues();
 
   const { handleAddVariableToTemplate, savePromptTemplateInputRef, promptTemplate, updatePromptTemplate } =
     usePromptEvaluationPromptTemplateValue();
 
   useEffect(() => {
-    if (isOpen && !runBeingDuplicated) {
+    if (isOpen) {
       setNewExperimentName(generateRandomRunName());
     }
-  }, [isOpen, runBeingDuplicated]);
+  }, [isOpen]);
 
   useEffect(() => {
     updateInputVariables(promptTemplate);
   }, [promptTemplate, updateInputVariables]);
-
-  /**
-   * If a run duplication is detected, pre-fill the values
-   */
-  useEffect(() => {
-    if (runBeingDuplicated) {
-      const {
-        platformName: duplicatedPlatformName,
-        routeName: duplicatedRouteName,
-        promptTemplate: duplicatedPromptTemplate,
-        parameters: duplicatedParameters,
-        vectorStoreCollectionName: duplicatedVectorStoreCollectionName,
-      } = extractEvaluationPrerequisitesForRun(runBeingDuplicated);
-
-      extractRequiredInputParamsForRun(runBeingDuplicated);
-      if (duplicatedPlatformName) {
-        updateSelectedPlatforms([...selectedPlatforms, duplicatedPlatformName]);
-      }
-      if (duplicatedPromptTemplate) {
-        updatePromptTemplate(duplicatedPromptTemplate);
-      }
-      if (duplicatedParameters.temperature) {
-        updateParameter('temperature', duplicatedParameters.temperature);
-      }
-      if (duplicatedParameters.max_tokens) {
-        updateParameter('max_tokens', duplicatedParameters.max_tokens);
-      }
-      if (duplicatedRouteName) {
-        updateSelectedModels([...selectedModels, duplicatedRouteName]);
-      }
-      if (duplicatedVectorStoreCollectionName) {
-        updateVectorStoreCollectionName(duplicatedVectorStoreCollectionName);
-      }
-      const duplicatedRunName = getDuplicatedRunName(
-        runBeingDuplicated.runName,
-        compact(visibleRuns.map(({ runName }) => runName)),
-      );
-      setNewExperimentName(duplicatedRunName);
-      clearInputVariableValues();
-    }
-  }, [
-    runBeingDuplicated,
-    clearInputVariableValues,
-    updateParameter,
-    updatePromptTemplate,
-    visibleRuns,
-    selectedModels, 
-    selectedPlatforms
-  ]);
 
 
   const platformList = ['openai', 'huggingface', 'alphacode', 'azure', 'google', 'aws'];

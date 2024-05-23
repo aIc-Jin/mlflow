@@ -16,14 +16,12 @@ export const DEFAULT_PROMPTLAB_PROMPT_COLUMN = 'prompt';
 export const PROMPTLAB_METADATA_COLUMN_LATENCY = 'MLFLOW_latency';
 export const PROMPTLAB_METADATA_COLUMN_TOTAL_TOKENS = 'MLFLOW_total_tokens';
 
-const PARAM_PLATFORM_NAME = 'platform_name';
 const PARAM_MODEL_ROUTE = 'model_route';
 const PARAM_ROUTE_TYPE = 'route_type';
 const PARAM_PROMPT_TEMPLATE = 'prompt_template';
 const PARAM_MAX_TOKENS = 'max_tokens';
 const PARAM_TEMPERATURE = 'temperature';
 const PARAM_STOP = 'stop';
-const PARAM_VECTOR_STORE_COLLECTION_NAME = 'vector_store_collection_name';
 
 export const extractPromptInputVariables = (promptTemplate: string) => {
   const pattern = /\{\{\s*([\w-]+)\s*\}\}/g;
@@ -65,12 +63,10 @@ export const extractRequiredInputParamsForRun = (run: RunRowType) => {
  * Parses the run entity and extracts all information necessary for evaluating values
  */
 export const extractEvaluationPrerequisitesForRun = (run: RunRowType) => {
-  const platformName = extractRunRowParam(run, PARAM_PLATFORM_NAME);
   const routeName = extractRunRowParam(run, PARAM_MODEL_ROUTE);
   const routeType = extractRunRowParam(run, PARAM_ROUTE_TYPE) as ModelGatewayRouteType;
   const promptTemplate = extractRunRowParam(run, PARAM_PROMPT_TEMPLATE);
   const max_tokens = extractRunRowParamInteger(run, PARAM_MAX_TOKENS);
-  const vectorStoreCollectionName = extractRunRowParam(run, PARAM_VECTOR_STORE_COLLECTION_NAME);
 
   const temperature = extractRunRowParamFloat(run, PARAM_TEMPERATURE);
   const stopString = extractRunRowParam(run, PARAM_STOP);
@@ -82,12 +78,10 @@ export const extractEvaluationPrerequisitesForRun = (run: RunRowType) => {
     .filter(Boolean);
 
   return {
-    platformName,
     routeName,
     routeType,
     promptTemplate,
     parameters: { max_tokens, temperature, stop },
-    vectorStoreCollectionName,
   };
 };
 
