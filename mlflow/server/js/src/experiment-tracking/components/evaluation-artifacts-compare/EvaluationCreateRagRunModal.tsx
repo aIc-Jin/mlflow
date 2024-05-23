@@ -8,7 +8,6 @@ import {
   DialogComboboxOptionListSelectItem,
   DialogComboboxTrigger,
   FormUI,
-  InfoIcon,
   Input,
   Modal,
   PlusIcon,
@@ -17,7 +16,7 @@ import {
   Typography,
   useDesignSystemTheme,
 } from '@databricks/design-system';
-import { sortBy, compact } from 'lodash';
+import { compact } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,8 +24,7 @@ import Utils from '../../../common/utils/Utils';
 import { ThunkDispatch } from '../../../redux-types';
 import { createRagLabRunApi } from '../../actions';
 import { ModelGatewayReduxState } from '../../reducers/ModelGatewayReducer';
-import { ModelGatewayResponseType, ModelGatewayService } from '../../sdk/ModelGatewayService';
-import { ModelGatewayRouteTask } from '../../sdk/MlflowEnums';
+import { ModelGatewayResponseType } from '../../sdk/ModelGatewayService';
 import { generateRandomRunName, getDuplicatedRunName } from '../../utils/RunNameUtils';
 import { useExperimentIds } from '../experiment-page/hooks/useExperimentIds';
 import { useFetchExperimentRuns } from '../experiment-page/hooks/useFetchExperimentRuns';
@@ -41,12 +39,9 @@ import { usePromptEvaluationParameters } from './hooks/usePromptEvaluationParame
 import { usePromptEvaluationPromptTemplateValue } from './hooks/usePromptEvaluationPromptTemplateValue';
 import { EvaluationCreateRunPromptTemplateErrors } from './components/EvaluationCreateRunPromptTemplateErrors';
 import type { RunRowType } from '../experiment-page/utils/experimentPage.row-types';
-import { EvaluationCreatePromptRunModalExamples } from './EvaluationCreatePromptRunModalExamples';
-import { EvaluationCreatePromptRunOutput } from './components/EvaluationCreatePromptRunOutput';
 import { useExperimentPageViewMode } from '../experiment-page/hooks/useExperimentPageViewMode';
 import { shouldEnableShareExperimentViewByTags } from '../../../common/utils/FeatureUtils';
 import { searchAllPromptLabAvailableEndpoints } from '../../actions/PromptEngineeringActions';
-import { getPromptEngineeringErrorMessage } from './utils/PromptEngineeringErrorUtils';
 
 const { TextArea } = Input;
 type Props = {
@@ -74,14 +69,10 @@ export const EvaluationCreateRagRunModal = ({
   const [selectedModels, updateSelectedModels] = useState<string[]>([]);
   const [newExperimentName, setNewExperimentName] = useState('');
   const [isCreatingRun, setIsCreatingRun] = useState(false);
-  const [isEvaluating, setIsEvaluating] = useState(false);
   const [lastEvaluationError, setLastEvaluationError] = useState<string | null>(null);
   const [evaluationOutput, setEvaluationOutput] = useState('');
   const [evaluationMetadata, setEvaluationMetadata] = useState<Partial<ModelGatewayResponseType['metadata']>>({});
   const [outputDirty, setOutputDirty] = useState(false);
-  const [isViewExamplesModalOpen, setViewExamplesModalOpen] = useState(false);
-  const cancelTokenRef = useRef<string | null>(null);
-  const modelRouteNamesOfPlatform: { [key: string]: string[] } = {};
 
   const [vectorStoreCollectionName, updateVectorStoreCollectionName] = useState('');
 
@@ -160,12 +151,12 @@ export const EvaluationCreateRagRunModal = ({
     }
   }, [
     runBeingDuplicated,
-    updateSelectedPlatforms,
     clearInputVariableValues,
     updateParameter,
     updatePromptTemplate,
-    updateVectorStoreCollectionName,
     visibleRuns,
+    selectedModels, 
+    selectedPlatforms
   ]);
 
   const modelRoutesUnified = useSelector(
@@ -271,14 +262,6 @@ export const EvaluationCreateRagRunModal = ({
         setIsCreatingRun(false);
       });
   };
-
-  // create a handleCancel function to terminate the evaluation if it is in progress
-  const handleCancel = useCallback(() => {
-    if (cancelTokenRef.current) {
-      setIsEvaluating(false);
-      cancelTokenRef.current = null;
-    }
-  }, [setIsEvaluating]);
 
   const selectPlatformLabel = intl.formatMessage({
     defaultMessage: 'Served Platform',
@@ -526,8 +509,8 @@ export const EvaluationCreateRagRunModal = ({
               label={selectPlatformLabel}
               modal={false}
               value={selectedPlatforms ? selectedPlatforms : undefined}
-              multiSelect={true}
-              stayOpenOnSelection={true}
+              multiSelect
+              stayOpenOnSelection
             >
               <DialogComboboxTrigger
                 id="selected_platform"
@@ -555,8 +538,8 @@ export const EvaluationCreateRagRunModal = ({
               label={selectModelLabel}
               modal={false}
               value={selectedModels ? selectedModels : undefined}
-              multiSelect={true}
-              stayOpenOnSelection={true}
+              multiSelect
+              stayOpenOnSelection
             >
               <DialogComboboxTrigger
                 id="selected_model"
