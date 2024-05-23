@@ -173,12 +173,6 @@ export const EvaluationCreateRagRunModal = ({
   const supportedModelRouteListUnified = useMemo(() => selectModelList, [selectModelList]);
 
   // Determines if model gateway routes are being loaded
-  useEffect(() => {
-    if (evaluationOutput) {
-      setOutputDirty(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputVariableValues, promptTemplate, parameters, selectedModels, vectorStoreCollectionName]);
 
   const { refreshRuns: refreshRunsFromContext, updateSearchFacets } = useFetchExperimentRuns();
 
