@@ -416,14 +416,14 @@ export const ExperimentViewRunsControlsFilters = React.memo(
                 </Button>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content>
-                {/* <DropdownMenu.Item onSelect={() => createNewRun()}>
+                <DropdownMenu.Item onSelect={() => createNewRun()}>
                   {' '}
                   <FormattedMessage
                     defaultMessage="using Prompt Engineering"
                     description="String for creating a new run with prompt engineering modal"
                   />
                   <PreviewBadge />
-                </DropdownMenu.Item> */}
+                </DropdownMenu.Item>
                 <DropdownMenu.Item onSelect={() => createNewRagRun()}>
                   {' '}
                   <FormattedMessage
