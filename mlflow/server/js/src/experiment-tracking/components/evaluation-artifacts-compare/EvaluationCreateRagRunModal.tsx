@@ -40,6 +40,7 @@ import type { RunRowType } from '../experiment-page/utils/experimentPage.row-typ
 import { useExperimentPageViewMode } from '../experiment-page/hooks/useExperimentPageViewMode';
 import { shouldEnableShareExperimentViewByTags } from '../../../common/utils/FeatureUtils';
 import { searchAllPromptLabAvailableEndpoints } from '../../actions/PromptEngineeringActions';
+import { EvaluationCreatePromptRunModalExamples } from './EvaluationCreatePromptRunModalExamples';  
 
 const { TextArea } = Input;
 type Props = {
@@ -62,13 +63,12 @@ export const EvaluationCreateRagRunModal = ({
   const { theme } = useDesignSystemTheme();
   const { parameters, updateParameter } = usePromptEvaluationParameters();
   const [, setViewMode] = useExperimentPageViewMode();
-
   const [selectedPlatforms, updateSelectedPlatforms] = useState<string[]>([]);
   const [selectedModels, updateSelectedModels] = useState<string[]>([]);
   const [newExperimentName, setNewExperimentName] = useState('');
   const [isCreatingRun, setIsCreatingRun] = useState(false);
-
   const [vectorStoreCollectionName, updateVectorStoreCollectionName] = useState('');
+  const [isViewExamplesModalOpen, setViewExamplesModalOpen] = useState(false);
 
   const dispatch = useDispatch<ThunkDispatch>();
 
@@ -324,6 +324,18 @@ export const EvaluationCreateRagRunModal = ({
     experimentNameProvided,
   ]);
 
+  if (isOpen && isViewExamplesModalOpen) {
+    return (
+      <EvaluationCreatePromptRunModalExamples
+        isOpen={isOpen && isViewExamplesModalOpen}
+        closeExamples={() => setViewExamplesModalOpen(false)}
+        closeModal={closeModal}
+        updatePromptTemplate={updatePromptTemplate}
+        updateInputVariableValue={updateInputVariableValue}
+      />
+    );
+  }
+
   const findPlatformNamesByModel = (modelRoute: string) => {
     let platformName = '';
 
@@ -535,6 +547,17 @@ export const EvaluationCreateRagRunModal = ({
                     description="Experiment Page > New Rag Run Modal > Prompt Template Input Label"
                   />
                 </FormUI.Label>
+                <Button
+                  componentId="codegen_mlflow_app_src_experiment-tracking_components_evaluation-artifacts-compare_evaluationcreatepromptrunmodal.tsx_695"
+                  onClick={() => setViewExamplesModalOpen(true)}
+                  style={{ marginLeft: 'auto' }}
+                  size="small"
+                >
+                  <FormattedMessage
+                    defaultMessage="View Examples"
+                    description="Experiment page > new run modal > prompt examples button"
+                  />
+                </Button>
               </div>
               <FormUI.Hint>
                 <FormattedMessage
