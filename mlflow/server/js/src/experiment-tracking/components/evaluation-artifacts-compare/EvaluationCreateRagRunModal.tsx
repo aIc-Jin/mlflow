@@ -347,19 +347,26 @@ export const EvaluationCreateRagRunModal = ({
         value={platformRoute}
         key={platformRoute}
         onChange={(value) => {
-          if (selectedPlatforms.filter((platform) => platform === value).length > 0) {
-            updateSelectedPlatforms(selectedPlatforms.filter((platform) => platform !== value));
-            return;
-          } else {
-            updateSelectedPlatforms([...selectedPlatforms, value]);
-          }
+          const isSelected = selectedPlatforms.includes(value);
+
+          const updatedPlatforms = isSelected 
+            ? selectedPlatforms.filter((platform) => platform !== value) 
+            : [...selectedPlatforms, value];
+
+          updateSelectedPlatforms(updatedPlatforms);
+
+          if (isSelected) {
+            const updateModels = selectedModels.filter((model) => findPlatformNamesByModel(model) !== value);
+            updateSelectedModels(updateModels);
+          } 
         }}
-        checked={selectedPlatforms.filter((platform) => platform === platformRoute).length > 0}
+        checked={selectedPlatforms.includes(platformRoute)}
       >
         {platformRoute}
       </DialogComboboxOptionListSelectItem>
     ));
   };
+
 
   const getRouteOptionList = () => {
     return supportedModelRouteListUnified.map((modelRoute) => (
@@ -367,14 +374,15 @@ export const EvaluationCreateRagRunModal = ({
         value={modelRoute}
         key={modelRoute}
         onChange={(value) => {
-          if (selectedModels.filter((model) => model === value).length > 0) {
-            updateSelectedModels(selectedModels.filter((model) => model !== value));
-            return;
-          } else {
-            updateSelectedModels([...selectedModels, value]);
-          }
+          const isSelected = selectedModels.includes(value);
+
+          const updatedModels = isSelected
+            ? selectedModels.filter((model) => model !== value)
+            : [...selectedModels, value];
+
+          updateSelectedModels(updatedModels);
         }}
-        checked={selectedModels.filter((model) => model === modelRoute).length > 0}
+        checked={selectedModels.includes(modelRoute)}
       >
         {modelRoute}
         {modelRoute && <DialogComboboxHintRow>{findPlatformNamesByModel(modelRoute)}</DialogComboboxHintRow>}
