@@ -16,10 +16,9 @@ import {
   Typography,
   useDesignSystemTheme,
 } from '@databricks/design-system';
-import { compact } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import Utils from '../../../common/utils/Utils';
 import { ThunkDispatch } from '../../../redux-types';
 import { createRagLabRunApi } from '../../actions';
@@ -49,6 +48,12 @@ type Props = {
   refreshRuns: (() => Promise<never[]>) | (() => Promise<any> | null) | (() => void);
 };
 
+type Model = {
+  model_uuid: string;
+  model_name: string;
+  platforms: string;
+}
+
 export const EvaluationCreateRagRunModal = ({
   isOpen,
   closeModal,
@@ -62,7 +67,7 @@ export const EvaluationCreateRagRunModal = ({
   const { parameters, updateParameter } = usePromptEvaluationParameters();
   const [, setViewMode] = useExperimentPageViewMode();
   const [selectedPlatforms, updateSelectedPlatforms] = useState<string[]>([]);
-  const [selectedModels, updateSelectedModels] = useState<string[]>([]);
+  const [selectedModels, updateSelectedModels] = useState<Model[]>([]);
   const [newExperimentName, setNewExperimentName] = useState('');
   const [isCreatingRun, setIsCreatingRun] = useState(false);
   const [vectorStoreCollectionName, updateVectorStoreCollectionName] = useState('');
@@ -102,23 +107,54 @@ export const EvaluationCreateRagRunModal = ({
 
   const platformList = ['openai', 'huggingface', 'alphacode', 'azure', 'google', 'aws'];
 
-  const modelList = {
-    'gpt-3.5-turbo': ['openai', 'azure'],
-    'gpt-4': ['openai', 'azure'],
-    transformer: ['huggingface'],
-    'alpha-llm': ['alphacode'],
-    gemini: ['google'],
-    bedrock: ['aws'],
-  };
-
-  const selectModelList = Object.entries(modelList)
-    .filter(([model, platforms]) => selectedPlatforms.some((platform) => platforms.includes(platform)))
-    .flatMap(([model]) => model);
+  const modelList: Model[] = [
+    {
+      model_uuid: '1',
+      model_name: 'gpt-3.5-turbo',
+      platforms: 'openai',
+    },
+    {
+      model_uuid: '2',
+      model_name: 'gpt-4',
+      platforms: 'openai',
+    },
+    {
+      model_uuid: '3',
+      model_name: 'gpt-3.5-turbo',
+      platforms: 'azure',
+    },
+    {
+      model_uuid: '4',
+      model_name: 'gpt-4',
+      platforms: 'azure',
+    },
+    {
+      model_uuid: '5',
+      model_name: 'transformer',
+      platforms: 'huggingface',
+    },
+    {
+      model_uuid: '6',
+      model_name: 'alpha-llm',
+      platforms: 'alphacode',
+    },
+    {
+      model_uuid: '7',
+      model_name: 'gemini',
+      platforms: 'google',
+    },
+    {
+      model_uuid: '8',
+      model_name: 'bedrock',
+      platforms: 'aws',
+    }
+  ]
+  const selectModelList = modelList.filter(item => selectedPlatforms.includes(item.platforms))
 
   // In the next version, routes are already filtered
-  const supportedPlatformRouteListUnified = useMemo(() => platformList, [platformList]);
+  const supportedPlatformRouteListUnified = platformList
 
-  const supportedModelRouteListUnified = useMemo(() => selectModelList, [selectModelList]);
+  const supportedModelRouteListUnified = selectModelList
 
   // Determines if model gateway routes are being loaded
 
@@ -133,21 +169,14 @@ export const EvaluationCreateRagRunModal = ({
   const onHandleSubmit = () => {
     setIsCreatingRun(true);
 
-    const modelRouteNamesOfPlatform: { [key: string]: string[] } = Object.entries(modelList).reduce(
-      (acc: { [key: string]: string[] }, [model, platforms]) => {
-        platforms.forEach((platform) => {
-          if (selectedPlatforms.includes(platform) && selectedModels.includes(model)) {
-            if (!acc.hasOwnProperty(platform)) {
-              acc[platform] = [model];
-            } else {
-              acc[platform].push(model);
-            }
-          }
-        });
-        return acc;
-      },
-      {},
-    );
+    const modelRouteNamesOfPlatform: { [key: string]: string[] } = selectedModels.reduce((acc: { [key: string]: string[] }, { model_name, platforms }) => {
+      if (!acc[platforms]) {
+        acc[platforms] = [];
+      }
+      acc[platforms].push(model_name);
+      return acc;
+    }
+    , {});
 
     const modelParameters = { ...parameters }; // array index 수정 필요
 
@@ -284,22 +313,6 @@ export const EvaluationCreateRagRunModal = ({
     );
   }
 
-  const findPlatformNamesByModel = (modelRoute: string) => {
-    let platformName = '';
-
-    Object.entries(modelList).forEach(([model, platforms]) => {
-      platforms.forEach((platform) => {
-        if (selectedPlatforms.includes(platform) && model === modelRoute) {
-          if (platformName !== '') {
-            platformName += ', ' + platform;
-          } else {
-            platformName = platform;
-          }
-        }
-      });
-    });
-    return platformName;
-  };
 
   const getRoutePlatformOptionList = () => {
     return supportedPlatformRouteListUnified.map((platformRoute) => (
@@ -316,7 +329,7 @@ export const EvaluationCreateRagRunModal = ({
           updateSelectedPlatforms(updatedPlatforms);
 
           if (isSelected) {
-            const updateModels = selectedModels.filter((model) => findPlatformNamesByModel(model) !== value);
+            const updateModels = selectedModels.filter((model) => model.platforms !== value);
             updateSelectedModels(updateModels);
           } 
         }}
@@ -331,21 +344,21 @@ export const EvaluationCreateRagRunModal = ({
   const getRouteOptionList = () => {
     return supportedModelRouteListUnified.map((modelRoute) => (
       <DialogComboboxOptionListSelectItem
-        value={modelRoute}
-        key={modelRoute}
+        value={modelRoute.model_uuid}
+        key={modelRoute.model_uuid}
         onChange={(value) => {
-          const isSelected = selectedModels.includes(value);
+          const isSelected = selectedModels.some((model) => model.model_uuid === value);
 
           const updatedModels = isSelected
-            ? selectedModels.filter((model) => model !== value)
-            : [...selectedModels, value];
+            ? selectedModels.filter((model) => model.model_uuid !== value)
+            : [...selectedModels, modelRoute];
 
           updateSelectedModels(updatedModels);
         }}
-        checked={selectedModels.includes(modelRoute)}
+        checked={selectedModels.some((model) => model.model_uuid === modelRoute.model_uuid)}
       >
-        {modelRoute}
-        {modelRoute && <DialogComboboxHintRow>{findPlatformNamesByModel(modelRoute)}</DialogComboboxHintRow>}
+        {modelRoute.model_name}
+        {modelRoute.model_name && <DialogComboboxHintRow>{modelRoute.platforms}</DialogComboboxHintRow>}
       </DialogComboboxOptionListSelectItem>
     ));
   };
@@ -437,7 +450,7 @@ export const EvaluationCreateRagRunModal = ({
             <DialogCombobox
               label={selectModelLabel}
               modal={false}
-              value={selectedModels ? selectedModels : undefined}
+              value={selectedModels ? selectedModels.map((model)=> model.model_name) : undefined}
               multiSelect
               stayOpenOnSelection
             >
