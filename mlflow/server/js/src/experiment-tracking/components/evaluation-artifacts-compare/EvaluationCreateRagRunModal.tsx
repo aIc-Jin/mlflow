@@ -268,6 +268,11 @@ export const EvaluationCreateRagRunModal = ({
     [inputVariables, inputVariableValues],
   );
 
+  const allInputValuesProvidedForMultiPrompt = useMemo(
+    () => inputVariablesForMultiPrompt.every((variable) => inputVariableValuesForMultiPrompt[variable]?.trim()),
+    [inputVariablesForMultiPrompt, inputVariableValuesForMultiPrompt],
+  );
+
   const experimentNameProvided = newExperimentName.trim().length > 0;
 
   // We can evaluate if we have selected model, prompt template and all input values.
@@ -279,7 +284,7 @@ export const EvaluationCreateRagRunModal = ({
   const createRunButtonEnabled = Boolean(
     selectedModels &&
       promptTemplateProvided &&
-      allInputValuesProvided &&
+      tabKey === 'basic' ? allInputValuesProvided : allInputValuesProvidedForMultiPrompt &&
       inputVariables.length > 0 &&
       experimentNameProvided,
   );
@@ -298,7 +303,13 @@ export const EvaluationCreateRagRunModal = ({
         description: 'Experiment page > new run modal > invalid state - no prompt template provided',
       });
     }
-    if (!allInputValuesProvided) {
+    if (!allInputValuesProvided && tabKey === 'basic') {
+      return intl.formatMessage({
+        defaultMessage: 'You need to provide values for all defined inputs',
+        description: 'Experiment page > new run modal > invalid state - no prompt inputs provided',
+      });
+    }
+    if (!allInputValuesProvidedForMultiPrompt && tabKey === 'multi-prompt') {
       return intl.formatMessage({
         defaultMessage: 'You need to provide values for all defined inputs',
         description: 'Experiment page > new run modal > invalid state - no prompt inputs provided',
@@ -324,6 +335,8 @@ export const EvaluationCreateRagRunModal = ({
     promptTemplateProvided,
     selectedModels,
     experimentNameProvided,
+    tabKey,
+    allInputValuesProvidedForMultiPrompt,
   ]);
 
   if (isOpen && isViewExamplesModalOpen) {

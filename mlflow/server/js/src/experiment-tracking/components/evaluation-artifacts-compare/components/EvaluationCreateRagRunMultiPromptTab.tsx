@@ -6,6 +6,7 @@ import {
   useDesignSystemTheme,
   MinusBoxIcon,
 } from '@databricks/design-system';
+import { Space } from 'antd';
 import { FormattedMessage } from 'react-intl';
 
 const { TextArea } = Input;
@@ -44,17 +45,29 @@ export const EvaluationCreateRagRunMultiPromptTab = ({
                 description="Experiment Page > New Rag Run Modal > Prompt Template Input Label"
               />
             </FormUI.Label>
+            <Button
+              componentId="codegen_mlflow_app_src_experiment-tracking_components_evaluation-artifacts-compare_evaluationcreatepromptrunmodal.tsx_695"
+              icon={<PlusIcon />}
+              onClick={handleAddTemplates}
+              style={{ marginLeft: 'auto' }}
+              size="small"
+            >
+            <FormattedMessage
+              defaultMessage="Add New Prompt"
+              description="Experiment Page > New Rag Run Modal > Prompt Template Input Label"
+            />
+            </Button>
           </div>
           <FormUI.Hint>
-            <FormattedMessage
-              defaultMessage={`Give instrupdatePromptTemplateuctions to the model. Use '{{ }}' or the "Add new variable" button to add variables to your prompt.`}
+          <FormattedMessage
+              defaultMessage={`Give instructions to the model. Use '{{ }}' or the "Add new variable" button to add variables to your prompt.`}
               description="Experiment Page > New Rag Run Modal > Prompt Template Input Hint"
             />
           </FormUI.Hint>
         </>
         {promptTemplates.map((promptTemplate, index) => (
           <>
-            <div css={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div css={{ display: 'flex', justifyContent: 'space-around', marginBottom: 16, marginTop: 8}}>
               <TextArea
                 id="prompt_template"
                 autoSize={{ minRows: 3 }}
@@ -76,18 +89,6 @@ export const EvaluationCreateRagRunMultiPromptTab = ({
             </div>
           </>
         ))}
-      </div>
-      <div css={{ marginBottom: 2 * theme.spacing.md }}>
-        <Button
-          componentId="codegen_mlflow_app_src_experiment-tracking_components_evaluation-artifacts-compare_evaluationcreatepromptrunmodal.tsx_736"
-          icon={<PlusIcon />}
-          onClick={handleAddTemplates}
-        >
-          <FormattedMessage
-            defaultMessage="Add new Prompt"
-            description="Experiment Page > New Rag Run Modal > Prompt Template Input Label"
-          />
-        </Button>
       </div>
       {inputVariables.map((inputVariable) => (
         <div css={styles.formItem} key={inputVariable}>
