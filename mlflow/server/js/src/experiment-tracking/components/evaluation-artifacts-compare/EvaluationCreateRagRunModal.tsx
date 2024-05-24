@@ -38,6 +38,7 @@ import { useExperimentPageViewMode } from '../experiment-page/hooks/useExperimen
 import { shouldEnableShareExperimentViewByTags } from '../../../common/utils/FeatureUtils';
 import { searchAllPromptLabAvailableEndpoints } from '../../actions/PromptEngineeringActions';
 import { EvaluationCreatePromptRunModalExamples } from './EvaluationCreatePromptRunModalExamples';  
+import { EvaluationCreateRagRunBasicTab } from './components/EvaluationCreateRagRunBasicTab';
 
 const { TextArea } = Input;
 type Props = {
@@ -525,73 +526,16 @@ export const EvaluationCreateRagRunModal = ({
         </div>
       <Tabs>
         <Tabs.TabPane tab="Basic" key="basic">
-        <div>
-          <div css={styles.formItem}>
-            <>
-              <div css={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormUI.Label htmlFor="prompt_template">
-                  <FormattedMessage
-                    defaultMessage="Prompt Template"
-                    description="Experiment Page > New Rag Run Modal > Prompt Template Input Label"
-                  />
-                </FormUI.Label>
-                <Button
-                  componentId="codegen_mlflow_app_src_experiment-tracking_components_evaluation-artifacts-compare_evaluationcreatepromptrunmodal.tsx_695"
-                  onClick={() => setViewExamplesModalOpen(true)}
-                  style={{ marginLeft: 'auto' }}
-                  size="small"
-                >
-                  <FormattedMessage
-                    defaultMessage="View Examples"
-                    description="Experiment page > new run modal > prompt examples button"
-                  />
-                </Button>
-              </div>
-              <FormUI.Hint>
-                <FormattedMessage
-                  defaultMessage={`Give instructions to the model. Use '{{ }}' or the "Add new variable" button to add variables to your prompt.`}
-                  description="Experiment Page > New Rag Run Modal > Prompt Template Input Hint"
-                />
-              </FormUI.Hint>
-            </>
-
-            <TextArea
-              id="prompt_template"
-              autoSize={{ minRows: 3 }}
-              data-testid="prompt-template-input"
-              value={promptTemplate}
-              onChange={(e) => updatePromptTemplate(e.target.value)}
-              ref={savePromptTemplateInputRef}
-            />
-          </div>
-          {inputVariables.map((inputVariable) => (
-            <div css={styles.formItem} key={inputVariable}>
-              <>
-                <FormUI.Label htmlFor={inputVariable}>
-                  <span>{inputVariable}</span>
-                </FormUI.Label>
-                <TextArea
-                  id={inputVariable}
-                  autoSize
-                  value={inputVariableValues[inputVariable] ? inputVariableValues[inputVariable] : ''}
-                  onChange={(e) => updateInputVariableValue(inputVariable, e.target.value)}
-                />
-              </>
-            </div>
-          ))}
-          <div css={{ marginBottom: 2 * theme.spacing.md }}>
-            <Button
-              componentId="codegen_mlflow_app_src_experiment-tracking_components_evaluation-artifacts-compare_evaluationcreatepromptrunmodal.tsx_736"
-              icon={<PlusIcon />}
-              onClick={handleAddVariableToTemplate}
-            >
-              <FormattedMessage
-                defaultMessage="Add new variable"
-                description='Experiment Page > New Rag Run Modal > "Add New Variable" Button Label'
-              />
-            </Button>
-          </div>
-        </div>
+          <EvaluationCreateRagRunBasicTab
+            setViewExamplesModalOpen={setViewExamplesModalOpen}
+            promptTemplate={promptTemplate}
+            updatePromptTemplate={updatePromptTemplate}
+            savePromptTemplateInputRef={savePromptTemplateInputRef}
+            inputVariables={inputVariables}
+            inputVariableValues={inputVariableValues}
+            updateInputVariableValue={updateInputVariableValue}
+            handleAddVariableToTemplate={handleAddVariableToTemplate}
+          />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Multi Prompt" key="multi-prompt">
           <div>
