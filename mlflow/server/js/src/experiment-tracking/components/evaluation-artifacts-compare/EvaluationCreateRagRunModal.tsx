@@ -15,6 +15,7 @@ import {
   Tooltip,
   Typography,
   useDesignSystemTheme,
+  Tabs,
 } from '@databricks/design-system';
 import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -32,7 +33,6 @@ import { EvaluationCreatePromptParameters } from './EvaluationCreatePromptParame
 import { usePromptEvaluationInputValues } from './hooks/usePromptEvaluationInputValues';
 import { usePromptEvaluationParameters } from './hooks/usePromptEvaluationParameters';
 import { usePromptEvaluationPromptTemplateValue } from './hooks/usePromptEvaluationPromptTemplateValue';
-import { EvaluationCreateRunPromptTemplateErrors } from './components/EvaluationCreateRunPromptTemplateErrors';
 import type { RunRowType } from '../experiment-page/utils/experimentPage.row-types';
 import { useExperimentPageViewMode } from '../experiment-page/hooks/useExperimentPageViewMode';
 import { shouldEnableShareExperimentViewByTags } from '../../../common/utils/FeatureUtils';
@@ -88,7 +88,6 @@ export const EvaluationCreateRagRunModal = ({
     inputVariables,
     inputVariableValues,
     updateInputVariableValue,
-    inputVariableNameViolations,
   } = usePromptEvaluationInputValues();
 
   const { handleAddVariableToTemplate, savePromptTemplateInputRef, promptTemplate, updatePromptTemplate } =
@@ -524,6 +523,8 @@ export const EvaluationCreateRagRunModal = ({
             </>
           </div>
         </div>
+      <Tabs>
+        <Tabs.TabPane tab="Basic" key="basic">
         <div>
           <div css={styles.formItem}>
             <>
@@ -562,7 +563,6 @@ export const EvaluationCreateRagRunModal = ({
               onChange={(e) => updatePromptTemplate(e.target.value)}
               ref={savePromptTemplateInputRef}
             />
-            <EvaluationCreateRunPromptTemplateErrors violations={inputVariableNameViolations} />
           </div>
           {inputVariables.map((inputVariable) => (
             <div css={styles.formItem} key={inputVariable}>
@@ -592,6 +592,23 @@ export const EvaluationCreateRagRunModal = ({
             </Button>
           </div>
         </div>
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Multi Prompt" key="multi-prompt">
+          <div>
+          Multi Prompt
+          </div>
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Multi Variable" key="multi-variable">
+          <div>
+            Multi Variable Test
+          </div>
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Vectorstore Parameter" key="paramter">
+          <div>
+          Vectorstore Parameter
+          </div>
+        </Tabs.TabPane>
+      </Tabs>
       </div>
       {isCreatingRun && (
         // Scrim overlay
