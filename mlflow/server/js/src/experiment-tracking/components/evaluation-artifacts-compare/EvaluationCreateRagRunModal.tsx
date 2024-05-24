@@ -468,6 +468,32 @@ export const EvaluationCreateRagRunModal = ({
               </DialogComboboxContent>
             </DialogCombobox>
           </div>
+          <div css={styles.formItem}>
+            <>
+              <FormUI.Label htmlFor="vector_store_collection_name">
+              <FormattedMessage
+                    defaultMessage="Vector Store Collection Name"
+                    description="Experiment Page > New Rag Run Modal > Vector Store Collection Name Input Label"
+                  />
+                {!newExperimentName.trim() && (
+                  <FormUI.Message
+                    type="error"
+                    message={intl.formatMessage({
+                      defaultMessage: 'Enter the name of the vector store collection to use for the model output',
+                      description: 'Experiment Page > New Rag Run Modal > Vector Store Collection Name Input Hint',
+                    })}
+                  />
+                )}
+              </FormUI.Label>
+              <Input
+                id="vector_store_collection_name"
+                data-testid="vector-store-collection-name-input"
+                required
+                value={vectorStoreCollectionName}
+                onChange={(e) => updateVectorStoreCollectionName(e.target.value)}
+              />
+            </>
+          </div>
           {selectedModels && (
             <EvaluationCreatePromptParameters parameters={parameters} updateParameter={updateParameter} />
           )}
@@ -564,33 +590,6 @@ export const EvaluationCreateRagRunModal = ({
                 description='Experiment Page > New Rag Run Modal > "Add New Variable" Button Label'
               />
             </Button>
-          </div>
-          <div css={styles.formItem}>
-            <>
-              <div css={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormUI.Label htmlFor="vector_store_collection_name">
-                  <FormattedMessage
-                    defaultMessage="Vector Store Collection Name"
-                    description="Experiment Page > New Rag Run Modal > Vector Store Collection Name Input Label"
-                  />
-                </FormUI.Label>
-              </div>
-              <FormUI.Hint>
-                <FormattedMessage
-                  defaultMessage={`Enter the name of the vector store collection to use for the model output`}
-                  description="Experiment Page > New Rag Run Modal > Vector Store Collection Name Input Hint"
-                />
-              </FormUI.Hint>
-            </>
-
-            <TextArea
-              id="vector_store_collection_name"
-              autoSize
-              data-testid="vector-store-collection-name-input"
-              value={vectorStoreCollectionName}
-              onChange={(e) => updateVectorStoreCollectionName(e.target.value)}
-            />
-            <EvaluationCreateRunPromptTemplateErrors violations={inputVariableNameViolations} />
           </div>
         </div>
       </div>
