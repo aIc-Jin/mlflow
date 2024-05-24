@@ -622,10 +622,10 @@ export const createRagLabRunApi = ({
   experimentId: string;
   modelRouteNamesOfPlatform: Record<string, string[]>;
   modelParameters: Record<string, string | number | string[] | undefined>;
-  promptTemplate: string;
+  promptTemplate: string[];
   promptParameters: Record<string, string>;
   experimentName?: string;
-  modelInput: string;
+  modelInput: string[];
   vectorStoreCollectionName: string;
   tags?: { key: string; value: string }[];
 }) => {

@@ -153,8 +153,9 @@ export class MlflowService {
     experiment_id: string;
     model_route_name_of_platform: Record<string, string[]>;
     model_parameters: { key: string; value: string | number | undefined }[];
-    prompt_template: string;
+    prompt_template: string[];
     prompt_parameters: { key: string; value: string }[];
+    model_input: string[];
     vector_store_collection_name: string;
     tags?: { key: string; value: string }[];
   }) => postJson({ relativeUrl: 'ajax-api/2.0/mlflow/runs/create-raglab-run', data });

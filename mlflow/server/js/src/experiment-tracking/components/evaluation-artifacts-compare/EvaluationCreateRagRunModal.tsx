@@ -74,6 +74,7 @@ export const EvaluationCreateRagRunModal = ({
   const [isCreatingRun, setIsCreatingRun] = useState(false);
   const [vectorStoreCollectionName, updateVectorStoreCollectionName] = useState('');
   const [isViewExamplesModalOpen, setViewExamplesModalOpen] = useState(false);
+  const [tabKey, setTabKey] = useState('basic');
 
   const dispatch = useDispatch<ThunkDispatch>();
 
@@ -201,17 +202,19 @@ export const EvaluationCreateRagRunModal = ({
 
     const modelParameters = { ...parameters }; // array index 수정 필요
 
-    // TODO : 어떤 텝이냐에 따라서 이부분 수정 필요함
-    const modelInput = compilePromptInputText(promptTemplate, inputVariableValues);
+    const modelInputs = tabKey === 'basic' 
+    ? [compilePromptInputText(promptTemplate, inputVariableValues)] : promptTemplates.map((template) => compilePromptInputText(template, inputVariableValuesForMultiPrompt));
+    const prompts = tabKey === 'basic' ? [promptTemplate] : promptTemplates;
+
     dispatch(
       createRagLabRunApi({
         experimentId,
         modelRouteNamesOfPlatform,
         modelParameters,
-        promptTemplate,
+        promptTemplate: prompts,
         promptParameters: inputVariableValues,
         experimentName: newExperimentName,
-        modelInput,
+        modelInput: modelInputs,
         vectorStoreCollectionName: vectorStoreCollectionName,
       }),
     )
@@ -546,7 +549,9 @@ export const EvaluationCreateRagRunModal = ({
             </>
           </div>
         </div>
-      <Tabs>
+      <Tabs
+      onChange={(key) => setTabKey(key)}
+      >
         <Tabs.TabPane tab="Basic" key="basic">
           <EvaluationCreateRagRunBasicTab
             setViewExamplesModalOpen={setViewExamplesModalOpen}
