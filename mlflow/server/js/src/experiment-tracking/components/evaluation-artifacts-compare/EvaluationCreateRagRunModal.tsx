@@ -10,7 +10,6 @@ import {
   FormUI,
   Input,
   Modal,
-  PlusIcon,
   Spinner,
   Tooltip,
   Typography,
@@ -91,7 +90,12 @@ export const EvaluationCreateRagRunModal = ({
     updateInputVariableValue,
   } = usePromptEvaluationInputValues();
 
-  const { handleAddVariableToTemplate, savePromptTemplateInputRef, promptTemplate, updatePromptTemplate } =
+  const { 
+    handleAddVariableToTemplate, 
+    savePromptTemplateInputRef, 
+    promptTemplate, 
+    updatePromptTemplate,
+  } =
     usePromptEvaluationPromptTemplateValue();
 
   useEffect(() => {
