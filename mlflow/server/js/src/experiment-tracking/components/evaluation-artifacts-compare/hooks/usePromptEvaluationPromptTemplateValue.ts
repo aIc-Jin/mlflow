@@ -56,10 +56,47 @@ export const usePromptEvaluationPromptTemplateValue = () => {
     promptTemplateRef.current = ref?.resizableTextArea?.textArea;
   }, []);
 
+  const [promptTemplates, updatePromptTemplates] = useState<string[]>([DEFAULT_PROMPTLAB_NEW_TEMPLATE_VALUE]);
+
+  const handleAddTemplates = useCallback(() => {
+    updatePromptTemplates((templates) => {
+      return [...templates, templates[templates.length - 1]];
+    });
+  }, []);
+
+  const handleAddVariableToTemplates  = useCallback(() => {
+    updatePromptTemplates((templates) => {
+      return templates.map((template) => {
+
+        const newVariableName = getNewVariableName(extractPromptInputVariables(template));
+        const newValue = `${template}${newVariableStartSegment}${newVariableName}${newVariableEndSegment}`;
+
+        // Wait until the next execution frame
+        requestAnimationFrame(() => {
+          const textAreaElement = promptTemplateRef.current;
+          if (!textAreaElement) {
+            return;
+          }
+          // Focus the element and set the newly added variable name
+          textAreaElement.focus();
+          textAreaElement.setSelectionRange(
+            newValue.length - newVariableName.length - newVariableEndSegment.length,
+            newValue.length - newVariableEndSegment.length
+          );
+        });
+        return newValue;
+      });
+    })
+  }, [updatePromptTemplates]);
+
   return {
     savePromptTemplateInputRef,
     handleAddVariableToTemplate,
     promptTemplate,
     updatePromptTemplate,
+    promptTemplates,
+    updatePromptTemplates,
+    handleAddTemplates,
+    handleAddVariableToTemplates,
   };
 };

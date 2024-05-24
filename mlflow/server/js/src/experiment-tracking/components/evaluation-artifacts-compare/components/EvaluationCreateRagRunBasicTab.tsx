@@ -9,7 +9,7 @@ import { FormattedMessage } from 'react-intl';
 
 const { TextArea } = Input;
 
-interface EvaluationCreatePromptRunOutputProps {
+interface EvaluationCreateRagRunBasicTabProps {
   setViewExamplesModalOpen: (isOpen: boolean) => void;
   promptTemplate: string;
   updatePromptTemplate: (prompt: string) => void;
@@ -29,7 +29,7 @@ export const EvaluationCreateRagRunBasicTab = ({
   inputVariableValues,
   updateInputVariableValue,
   handleAddVariableToTemplate,
-}: EvaluationCreatePromptRunOutputProps) => {
+}: EvaluationCreateRagRunBasicTabProps) => {
   const { theme } = useDesignSystemTheme();
  
   return (

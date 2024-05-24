@@ -38,6 +38,8 @@ import { shouldEnableShareExperimentViewByTags } from '../../../common/utils/Fea
 import { searchAllPromptLabAvailableEndpoints } from '../../actions/PromptEngineeringActions';
 import { EvaluationCreatePromptRunModalExamples } from './EvaluationCreatePromptRunModalExamples';  
 import { EvaluationCreateRagRunBasicTab } from './components/EvaluationCreateRagRunBasicTab';
+import { EvaluationCreateRagRunMultiPromptTab } from './components/EvaluationCreateRagRunMultiPromptTab';
+import { usePromptEvaluationInputValuesForMultiPrompt } from './hooks/usePromptEvaluationInputValuesForMultiPrompt';
 
 const { TextArea } = Input;
 type Props = {
@@ -95,8 +97,19 @@ export const EvaluationCreateRagRunModal = ({
     savePromptTemplateInputRef, 
     promptTemplate, 
     updatePromptTemplate,
+    promptTemplates,  
+    updatePromptTemplates, 
+    handleAddTemplates,
+    handleAddVariableToTemplates, 
   } =
     usePromptEvaluationPromptTemplateValue();
+
+  const {
+      inputVariablesForMultiPrompt,
+      inputVariableValuesForMultiPrompt,
+      updateInputVariableValueForMultiPrompt,
+      updateInputVariablesForPromptTemplates,
+    } = usePromptEvaluationInputValuesForMultiPrompt();
 
   useEffect(() => {
     if (isOpen) {
@@ -108,6 +121,10 @@ export const EvaluationCreateRagRunModal = ({
     updateInputVariables(promptTemplate);
   }, [promptTemplate, updateInputVariables]);
 
+
+  useEffect(() => {
+    updateInputVariablesForPromptTemplates(promptTemplates);
+  }, [promptTemplates, updateInputVariablesForPromptTemplates]);
 
   const platformList = ['openai', 'huggingface', 'alphacode', 'azure', 'google', 'aws'];
 
@@ -184,6 +201,7 @@ export const EvaluationCreateRagRunModal = ({
 
     const modelParameters = { ...parameters }; // array index 수정 필요
 
+    // TODO : 어떤 텝이냐에 따라서 이부분 수정 필요함
     const modelInput = compilePromptInputText(promptTemplate, inputVariableValues);
     dispatch(
       createRagLabRunApi({
@@ -542,9 +560,16 @@ export const EvaluationCreateRagRunModal = ({
           />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Multi Prompt" key="multi-prompt">
-          <div>
-          Multi Prompt
-          </div>
+          <EvaluationCreateRagRunMultiPromptTab 
+            promptTemplates={promptTemplates}
+            updatePromptTemplates={updatePromptTemplates}
+            savePromptTemplateInputRef={savePromptTemplateInputRef}
+            inputVariables={inputVariablesForMultiPrompt}
+            inputVariableValues={inputVariableValuesForMultiPrompt}
+            updateInputVariableValue={updateInputVariableValueForMultiPrompt}
+            handleAddTemplates={handleAddTemplates}
+            handleAddVariableToTemplates={handleAddVariableToTemplates}
+          />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Multi Variable" key="multi-variable">
           <div>
