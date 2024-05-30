@@ -290,7 +290,8 @@ export const EvaluationCreateRagRunModal = ({
       promptTemplateProvided &&
       tabKey === 'basic' ? allInputValuesProvided : allInputValuesProvidedForMultiPrompt &&
       inputVariables.length > 0 &&
-      experimentNameProvided,
+      experimentNameProvided &&
+      vectorStoreCollectionName,
   );
 
   // Let's prepare a proper tooltip content for every scenario
@@ -331,6 +332,12 @@ export const EvaluationCreateRagRunModal = ({
         description: 'Experiment page > new run modal > invalid state - no run name provided',
       });
     }
+    if (!vectorStoreCollectionName) {
+      return intl.formatMessage({
+        defaultMessage: 'Please provide vector store collection name',
+        description: 'Experiment page > new run modal > invalid state - no vector store collection name provided',
+      });
+    }
     return null;
   }, [
     allInputValuesProvided,
@@ -341,6 +348,7 @@ export const EvaluationCreateRagRunModal = ({
     experimentNameProvided,
     tabKey,
     allInputValuesProvidedForMultiPrompt,
+    vectorStoreCollectionName,
   ]);
 
   if (isOpen && isViewExamplesModalOpen) {
