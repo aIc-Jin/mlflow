@@ -264,6 +264,8 @@ export const EvaluationCreateRagRunModal = ({
   });
 
   const promptTemplateProvided = promptTemplate.trim().length > 0;
+  const promptTemplateProvidedForMultiPrompt = promptTemplates.every((template) => template.trim().length > 0);
+  
   const allInputValuesProvided = useMemo(
     () => inputVariables.every((variable) => inputVariableValues[variable]?.trim()),
     [inputVariables, inputVariableValues],
@@ -283,13 +285,16 @@ export const EvaluationCreateRagRunModal = ({
   // output that is present and up-to-date. Also, in order to log the run, we should have at least
   // one input variable defined (otherwise prompt engineering won't make sense).
 
-  const createRunButtonEnabledByselectedModels = Boolean(
-    selectedModels.length > 0
-  )
+
+  const checkedAllInpueValues = tabKey === 'basic' ? allInputValuesProvided : allInputValuesProvidedForMultiPrompt;
+  const checkedPromptTemplate = tabKey === 'basic' ? promptTemplateProvided : promptTemplateProvidedForMultiPrompt;
+  const checkedInputVariables = tabKey === 'basic' ? inputVariables.length > 0 : inputVariablesForMultiPrompt.length > 0;
+  
   const createRunButtonEnabled = Boolean(
-      promptTemplateProvided &&
-      tabKey === 'basic' ? allInputValuesProvided : allInputValuesProvidedForMultiPrompt &&
-      inputVariables.length > 0 &&
+      selectedModels.length > 0 &&
+      checkedAllInpueValues &&
+      checkedPromptTemplate &&
+      checkedInputVariables &&
       experimentNameProvided &&
       vectorStoreCollectionName,
   );
@@ -436,7 +441,7 @@ export const EvaluationCreateRagRunModal = ({
               onClick={onHandleSubmit}
               data-testid="button-create-run"
               type="primary"
-              disabled={!createRunButtonEnabled || !createRunButtonEnabledByselectedModels}
+              disabled={!createRunButtonEnabled}
             >
               <FormattedMessage
                 defaultMessage="Create run"
