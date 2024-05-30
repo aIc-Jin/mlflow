@@ -205,6 +205,7 @@ export const EvaluationCreateRagRunModal = ({
     const modelInputs = tabKey === 'basic' 
     ? [compilePromptInputText(promptTemplate, inputVariableValues)] : promptTemplates.map((template) => compilePromptInputText(template, inputVariableValuesForMultiPrompt));
     const prompts = tabKey === 'basic' ? [promptTemplate] : promptTemplates;
+    const promptParameters = tabKey === 'basic' ? inputVariableValues : inputVariableValuesForMultiPrompt;
 
     dispatch(
       createRagLabRunApi({
@@ -212,7 +213,7 @@ export const EvaluationCreateRagRunModal = ({
         modelRouteNamesOfPlatform,
         modelParameters,
         promptTemplate: prompts,
-        promptParameters: inputVariableValues,
+        promptParameters: promptParameters,
         experimentName: newExperimentName,
         modelInput: modelInputs,
         vectorStoreCollectionName: vectorStoreCollectionName,
@@ -281,8 +282,11 @@ export const EvaluationCreateRagRunModal = ({
   // We can log the run if we have: selected model, prompt template, all input values,
   // output that is present and up-to-date. Also, in order to log the run, we should have at least
   // one input variable defined (otherwise prompt engineering won't make sense).
+
+  const createRunButtonEnabledByselectedModels = Boolean(
+    selectedModels.length > 0
+  )
   const createRunButtonEnabled = Boolean(
-    selectedModels &&
       promptTemplateProvided &&
       tabKey === 'basic' ? allInputValuesProvided : allInputValuesProvidedForMultiPrompt &&
       inputVariables.length > 0 &&
@@ -291,7 +295,7 @@ export const EvaluationCreateRagRunModal = ({
 
   // Let's prepare a proper tooltip content for every scenario
   const createRunButtonTooltip = useMemo(() => {
-    if (!selectedModels) {
+    if (selectedModels.length === 0) {
       return intl.formatMessage({
         defaultMessage: 'You need to select a served model endpoint using dropdown first',
         description: 'Experiment page > new run modal > invalid state - no model endpoint selected',
@@ -424,7 +428,7 @@ export const EvaluationCreateRagRunModal = ({
               onClick={onHandleSubmit}
               data-testid="button-create-run"
               type="primary"
-              disabled={!createRunButtonEnabled}
+              disabled={!createRunButtonEnabled || !createRunButtonEnabledByselectedModels}
             >
               <FormattedMessage
                 defaultMessage="Create run"
@@ -588,16 +592,6 @@ export const EvaluationCreateRagRunModal = ({
             handleAddTemplates={handleAddTemplates}
             handleAddVariableToTemplates={handleAddVariableToTemplates}
           />
-        </Tabs.TabPane>
-        <Tabs.TabPane tab="Multi Variable" key="multi-variable">
-          <div>
-            Multi Variable Test
-          </div>
-        </Tabs.TabPane>
-        <Tabs.TabPane tab="Vectorstore Parameter" key="paramter">
-          <div>
-          Vectorstore Parameter
-          </div>
         </Tabs.TabPane>
       </Tabs>
       </div>
