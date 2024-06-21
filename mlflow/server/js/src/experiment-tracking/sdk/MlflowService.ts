@@ -155,6 +155,7 @@ export class MlflowService {
     model_parameters: { key: string; value: string | number | undefined }[];
     prompt_template: string[];
     prompt_parameters: { key: string; value: string }[];
+    experiment_name: string;
     model_input: string[];
     vector_store_collection_name: string;
     tags?: { key: string; value: string }[];
